@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "hmac.js",
+  "sourceRoot": "",
+  "sources": [
+    "coffeescripts/hmac.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA,MAAA,MAAA,EAAA;;EAAA,MAAA,GAAS,OAAA,CAAQ,QAAR;;EAET,IAAA,GAAO,CAAC,MAAD,EAAS,IAAT,EAAe,MAAf,CAAA,GAAA;WACL,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;aACV,OAAA,CAAQ,MAAM,CAAC,UAAP,CAAkB,MAAlB,EAA0B,MAA1B,CAAiC,CAAC,MAAlC,CAAyC,IAAzC,CAA8C,CAAC,MAA/C,CAAA,CAAR;IADU,CAAZ;EADK;;EAIP,MAAM,CAAC,OAAP,GACE;IAAA,OAAA,EAAS,CAAC,IAAD,EAAO,MAAP,CAAA,GAAA;aACP,OAAO,CAAC,OAAR,CAAgB,IAAA,CAAK,QAAL,EAAe,IAAf,EAAqB,MAArB,CAAhB;IADO,CAAT;IAGA,OAAA,EAAS,CAAC,IAAD,EAAO,MAAP,CAAA,GAAA;aACP,OAAO,CAAC,OAAR,CAAgB,IAAA,CAAK,QAAL,EAAe,IAAf,EAAqB,MAArB,CAAhB;IADO,CAHT;IAMA,OAAA,EAAS,CAAC,IAAD,EAAO,MAAP,CAAA,GAAA;aACP,OAAO,CAAC,OAAR,CAAgB,IAAA,CAAK,QAAL,EAAe,IAAf,EAAqB,MAArB,CAAhB;IADO;EANT;AAPF",
+  "sourcesContent": [
+    "crypto = require \"crypto\"\n\nhmac = (digest, text, secret) =>\n  new Promise (resolve, reject) =>\n    resolve crypto.createHmac(digest, secret).update(text).digest()\n\nmodule.exports =\n  hmac256: (text, secret) =>\n    Promise.resolve hmac(\"sha256\", text, secret)\n\n  hmac384: (text, secret) =>\n    Promise.resolve hmac(\"sha384\", text, secret)\n\n  hmac512: (text, secret) =>\n    Promise.resolve hmac(\"sha512\", text, secret)\n"
+  ]
+}

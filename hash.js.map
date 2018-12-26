@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "hash.js",
+  "sourceRoot": "",
+  "sources": [
+    "coffeescripts/hash.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA,MAAA;;EAAA,MAAA,GAAS,OAAA,CAAQ,QAAR;;EAET,MAAM,CAAC,OAAP,GACE;IAAA,MAAA,EAAQ,CAAC,IAAD,CAAA,GAAA;aACN,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;AACV,YAAA;QAAA,IAAA,GAAO,MAAM,CAAC,UAAP,CAAkB,QAAlB;eACP,OAAA,CAAQ,IAAI,CAAC,MAAL,CAAY,IAAZ,CAAiB,CAAC,MAAlB,CAAA,CAAR;MAFU,CAAZ;IADM,CAAR;IAKA,MAAA,EAAQ,CAAC,IAAD,CAAA,GAAA;aACN,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;AACV,YAAA;QAAA,IAAA,GAAO,MAAM,CAAC,UAAP,CAAkB,QAAlB;eACP,OAAA,CAAQ,IAAI,CAAC,MAAL,CAAY,IAAZ,CAAiB,CAAC,MAAlB,CAAA,CAAR;MAFU,CAAZ;IADM,CALR;IAUA,MAAA,EAAQ,CAAC,IAAD,CAAA,GAAA;aACN,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;AACV,YAAA;QAAA,IAAA,GAAO,MAAM,CAAC,UAAP,CAAkB,QAAlB;eACP,OAAA,CAAQ,IAAI,CAAC,MAAL,CAAY,IAAZ,CAAiB,CAAC,MAAlB,CAAA,CAAR;MAFU,CAAZ;IADM;EAVR;AAHF",
+  "sourcesContent": [
+    "crypto = require \"crypto\"\n\nmodule.exports =\n  sha256: (text) =>\n    new Promise (resolve, reject) =>\n      hash = crypto.createHash(\"sha256\")\n      resolve hash.update(text).digest()\n\n  sha384: (text) =>\n    new Promise (resolve, reject) =>\n      hash = crypto.createHash(\"sha384\")\n      resolve hash.update(text).digest()\n\n  sha512: (text) =>\n    new Promise (resolve, reject) =>\n      hash = crypto.createHash(\"sha512\")\n      resolve hash.update(text).digest()\n"
+  ]
+}

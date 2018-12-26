@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "hkdf.js",
+  "sourceRoot": "",
+  "sources": [
+    "coffeescripts/hkdf.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA,MAAA;;EAAA,MAAA,GAAS,OAAA,CAAQ,UAAR;;EAET,MAAM,CAAC,OAAP,GACE;IAAA,MAAA,EAAQ,CAAC,GAAD,EAAM,IAAN,EAAY,OAAO,IAAnB,EAAyB,OAAO,IAAhC,CAAA,GAAA;AACN,UAAA;MAAA,IAAA,GAAO,OAAA,CAAQ,aAAR;aAEP,IAAI,OAAJ,CAAY,KAAA,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;AACV,YAAA;QAAA,IAAG,IAAA,KAAQ,IAAR,IAAgB,IAAA,KAAQ,MAA3B;UACE,IAAA,GAAO,CAAA,MAAM,MAAM,CAAC,YAAP,CAAoB,EAApB,CAAN,EADT;;AAGA;iBACE,OAAA,CAAQ,IAAA,CAAK,GAAL,EAAU,IAAV,EAAgB,IAAhB,EAAsB,IAAtB,EAA4B,SAA5B,CAAR,EADF;SAAA,aAAA;UAEM;iBACJ,MAAA,CAAO,GAAP,EAHF;;MAJU,CAAZ;IAHM;EAAR;AAHF",
+  "sourcesContent": [
+    "common = require \"./common\"\n\nmodule.exports =\n  derive: (ikm, size, salt = null, info = null) =>\n    hkdf = require \"futoin-hkdf\"\n\n    new Promise (resolve, reject) =>\n      if salt is null or salt is undefined\n        salt = await common.randomString(32)\n\n      try\n        resolve hkdf(ikm, size, salt, info, \"SHA-512\")\n      catch err\n        reject err\n"
+  ]
+}

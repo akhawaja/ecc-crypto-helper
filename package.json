@@ -1,0 +1,42 @@
+{
+  "name": "node-crypto-ecc",
+  "version": "1.0.0",
+  "description": "A Node.js elliptic curve crypto helper library.",
+  "main": "index.js",
+  "author": {
+    "name": "Amir Khawaja",
+    "email": "khawaja.amir@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "keywords": [
+    "elliptic curve",
+    "cryptography",
+    "JSON Web Tokens",
+    "crypto",
+    "ecc",
+    "jwt"
+  ],
+  "private": false,
+  "engines": {
+    "node": ">= 10.0.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "coffeescript": "^2.3.2",
+    "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "eckey-utils": "^0.7.10",
+    "futoin-hkdf": "^1.0.2",
+    "jws": "^3.1.5"
+  }
+}
