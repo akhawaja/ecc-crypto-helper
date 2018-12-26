@@ -14,6 +14,9 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   ],
+  "repository": {
+    "url": "https://github.com/akhawaja/ecc-crypto-helper"
+  },
   "keywords": [
     "elliptic curve",
     "cryptography",
