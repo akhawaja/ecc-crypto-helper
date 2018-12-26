@@ -32,4 +32,16 @@ the `Features` section for a quick description of what is available.
 
 ## Example Usage
 
+1. Install the library.
+
+```
+$> yarn add ecc-crypto-helper
+```
+
+2. Just import the file in your Node.js project.
+
+```javascript
+eccHelper = require("ecc-crypto-helper")
+```
+
 See the `test/spec.js` file for examples.
