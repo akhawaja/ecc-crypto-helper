@@ -213,3 +213,18 @@ describe "Specification tests for the helper methods.", () =>
       verify = await ecc521.verifyPayloadSignature(message, signature, keyPair.publicKey)
 
       expect(verify).to.be.true
+
+    it "Should be able to convert keys between PEM and JWK.", () =>
+      keyPair = await ecc521.generatePemKeyPair()
+      jwk = await ecc521.convertPemToJwk(keyPair.privateKey)
+      pems = await ecc521.convertJwkToPem(jwk.privateKey)
+      jwk2 = await ecc521.convertPemToJwk(pems.privateKey)
+      pems2 = await ecc521.convertJwkToPem(jwk2.privateKey)
+
+      expect(jwk.privateKey.x).to.equal(jwk2.privateKey.x)
+      expect(jwk.privateKey.y).to.equal(jwk2.privateKey.y)
+      expect(jwk.privateKey.d).to.equal(jwk2.privateKey.d)
+      expect(jwk.publicKey.x).to.equal(jwk2.publicKey.x)
+      expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
+      expect(pems.privateKey).to.equal(pems2.privateKey)
+      expect(pems.publicKey).to.equal(pems2.publicKey)

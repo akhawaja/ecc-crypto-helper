@@ -210,13 +210,28 @@
         verify = (await ecc384.verifyPayloadSignature(message, signature, keyPair.publicKey));
         return expect(verify).to.be.true;
       });
-      return it("Should sign and verify a message signed with a P-521 key.", async() => {
+      it("Should sign and verify a message signed with a P-521 key.", async() => {
         var keyPair, message, signature, verify;
         message = "This is a message that was not tampered with.";
         keyPair = (await ecc521.generatePemKeyPair());
         signature = (await ecc521.signPayload(message, keyPair.privateKey));
         verify = (await ecc521.verifyPayloadSignature(message, signature, keyPair.publicKey));
         return expect(verify).to.be.true;
+      });
+      return it("Should be able to convert keys between PEM and JWK.", async() => {
+        var jwk, jwk2, keyPair, pems, pems2;
+        keyPair = (await ecc521.generatePemKeyPair());
+        jwk = (await ecc521.convertPemToJwk(keyPair.privateKey));
+        pems = (await ecc521.convertJwkToPem(jwk.privateKey));
+        jwk2 = (await ecc521.convertPemToJwk(pems.privateKey));
+        pems2 = (await ecc521.convertJwkToPem(jwk2.privateKey));
+        expect(jwk.privateKey.x).to.equal(jwk2.privateKey.x);
+        expect(jwk.privateKey.y).to.equal(jwk2.privateKey.y);
+        expect(jwk.privateKey.d).to.equal(jwk2.privateKey.d);
+        expect(jwk.publicKey.x).to.equal(jwk2.publicKey.x);
+        expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y);
+        expect(pems.privateKey).to.equal(pems2.privateKey);
+        return expect(pems.publicKey).to.equal(pems2.publicKey);
       });
     });
   });
