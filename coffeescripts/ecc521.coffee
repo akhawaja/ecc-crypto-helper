@@ -111,8 +111,14 @@ module.exports =
       catch err
         reject err
 
-  parsePemToJwk: (privateOrPublicPem) =>
+  parsePemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) =>
     new Promise (resolve, reject) =>
+      if privateKeyOps.length is 0
+        privateKeyOps = ["deriveKey", "sign"]
+
+      if publicKeyOps.length is 0
+        publicKeyOps = ["verify"]
+
       try
         parsed = ecKeyUtils.parsePem(privateOrPublicPem)
         params = {}
@@ -123,7 +129,16 @@ module.exports =
         if parsed.publicKey isnt undefined and parsed.publicKey isnt null
           params.publicKey = parsed.publicKey
 
-        resolve ecKeyUtils.generateJwk(CURVE_NAME, parsed)
+        jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed)
+        kid = (await common.randomString()).toString("hex")
+
+        jwk.privateKey.kid = kid
+        jwk.privateKey.key_ops = privateKeyOps
+
+        jwk.publicKey.kid = kid
+        jwk.publicKey.key_ops = publicKeyOps
+
+        resolve jwk
       catch err
         reject err
 

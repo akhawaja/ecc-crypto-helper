@@ -124,9 +124,15 @@
         }
       });
     },
-    parsePemToJwk: (privateOrPublicPem) => {
-      return new Promise((resolve, reject) => {
-        var err, params, parsed;
+    parsePemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) => {
+      return new Promise(async(resolve, reject) => {
+        var err, jwk, kid, params, parsed;
+        if (privateKeyOps.length === 0) {
+          privateKeyOps = ["deriveKey", "sign"];
+        }
+        if (publicKeyOps.length === 0) {
+          publicKeyOps = ["verify"];
+        }
         try {
           parsed = ecKeyUtils.parsePem(privateOrPublicPem);
           params = {};
@@ -136,7 +142,13 @@
           if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
             params.publicKey = parsed.publicKey;
           }
-          return resolve(ecKeyUtils.generateJwk(CURVE_NAME, parsed));
+          jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed);
+          kid = ((await common.randomString())).toString("hex");
+          jwk.privateKey.kid = kid;
+          jwk.privateKey.key_ops = privateKeyOps;
+          jwk.publicKey.kid = kid;
+          jwk.publicKey.key_ops = publicKeyOps;
+          return resolve(jwk);
         } catch (error) {
           err = error;
           return reject(err);
