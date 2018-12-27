@@ -218,7 +218,22 @@
         verify = (await ecc521.verifyPayloadSignature(message, signature, keyPair.publicKey));
         return expect(verify).to.be.true;
       });
-      return it("Should be able to convert keys between PEM and JWK.", async() => {
+      it("Should be able to convert keys between PEM and JWK when using ecc384.", async() => {
+        var jwk, jwk2, keyPair, pems, pems2;
+        keyPair = (await ecc384.generatePemKeyPair());
+        jwk = (await ecc384.convertPemToJwk(keyPair.privateKey));
+        pems = (await ecc384.convertJwkToPem(jwk.privateKey));
+        jwk2 = (await ecc384.convertPemToJwk(pems.privateKey));
+        pems2 = (await ecc384.convertJwkToPem(jwk2.privateKey));
+        expect(jwk.privateKey.x).to.equal(jwk2.privateKey.x);
+        expect(jwk.privateKey.y).to.equal(jwk2.privateKey.y);
+        expect(jwk.privateKey.d).to.equal(jwk2.privateKey.d);
+        expect(jwk.publicKey.x).to.equal(jwk2.publicKey.x);
+        expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y);
+        expect(pems.privateKey).to.equal(pems2.privateKey);
+        return expect(pems.publicKey).to.equal(pems2.publicKey);
+      });
+      return it("Should be able to convert keys between PEM and JWK when using ecc521.", async() => {
         var jwk, jwk2, keyPair, pems, pems2;
         keyPair = (await ecc521.generatePemKeyPair());
         jwk = (await ecc521.convertPemToJwk(keyPair.privateKey));

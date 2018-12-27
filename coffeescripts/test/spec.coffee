@@ -214,7 +214,22 @@ describe "Specification tests for the helper methods.", () =>
 
       expect(verify).to.be.true
 
-    it "Should be able to convert keys between PEM and JWK.", () =>
+    it "Should be able to convert keys between PEM and JWK when using ecc384.", () =>
+      keyPair = await ecc384.generatePemKeyPair()
+      jwk = await ecc384.convertPemToJwk(keyPair.privateKey)
+      pems = await ecc384.convertJwkToPem(jwk.privateKey)
+      jwk2 = await ecc384.convertPemToJwk(pems.privateKey)
+      pems2 = await ecc384.convertJwkToPem(jwk2.privateKey)
+
+      expect(jwk.privateKey.x).to.equal(jwk2.privateKey.x)
+      expect(jwk.privateKey.y).to.equal(jwk2.privateKey.y)
+      expect(jwk.privateKey.d).to.equal(jwk2.privateKey.d)
+      expect(jwk.publicKey.x).to.equal(jwk2.publicKey.x)
+      expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
+      expect(pems.privateKey).to.equal(pems2.privateKey)
+      expect(pems.publicKey).to.equal(pems2.publicKey)
+
+    it "Should be able to convert keys between PEM and JWK when using ecc521.", () =>
       keyPair = await ecc521.generatePemKeyPair()
       jwk = await ecc521.convertPemToJwk(keyPair.privateKey)
       pems = await ecc521.convertJwkToPem(jwk.privateKey)
