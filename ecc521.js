@@ -13,36 +13,58 @@
 
   module.exports = {
     curveName: CURVE_NAME,
-    convertPemToJwk: (privateKey, publicKey, privateKeyOps = [], publicKeyOps = []) => {
-      if (privateKeyOps.length === 0) {
-        privateKeyOps = ["deriveKey", "sign"];
-      }
-      if (publicKeyOps.length === 0) {
-        publicKeyOps = ["verify"];
-      }
+    convertPemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) => {
       return new Promise(async(resolve, reject) => {
-        var jwk, kid, params;
-        params = {};
-        if (privateKey !== void 0 && privateKey !== null) {
-          params.privateKey = privateKey;
+        var err, jwk, kid, params, parsed;
+        if (privateKeyOps.length === 0) {
+          privateKeyOps = ["deriveKey", "sign"];
         }
-        if (publicKey !== void 0 && publicKey !== null) {
-          params.publicKey = publicKey;
+        if (publicKeyOps.length === 0) {
+          publicKeyOps = ["verify"];
         }
-        if (params.privateKey === void 0 && params.publicKey === void 0) {
-          reject(new Error("You must supply at least a private key or public key."));
+        try {
+          parsed = ecKeyUtils.parsePem(privateOrPublicPem);
+          params = {};
+          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
+            params.privateKey = parsed.privateKey;
+          }
+          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
+            params.publicKey = parsed.publicKey;
+          }
+          jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed);
+          kid = ((await common.randomString())).toString("hex");
+          if (jwk.privateKey !== void 0) {
+            jwk.privateKey.kid = kid;
+            jwk.privateKey.key_ops = privateKeyOps;
+          }
+          if (jwk.publicKey !== void 0) {
+            jwk.publicKey.kid = kid;
+            jwk.publicKey.key_ops = publicKeyOps;
+          }
+          return resolve(jwk);
+        } catch (error) {
+          err = error;
+          return reject(err);
         }
-        jwk = ecKeyUtils.generateJwk(CURVE_NAME, params);
-        kid = ((await common.randomString())).toString("hex");
-        if (jwk.privateKey !== void 0) {
-          jwk.privateKey.kid = kid;
-          jwk.privateKey.key_ops = privateKeyOps;
+      });
+    },
+    convertJwkToPem: (privateOrPublicJwk) => {
+      return new Promise((resolve, reject) => {
+        var err, params, parsed;
+        try {
+          parsed = ecKeyUtils.parseJwk(privateOrPublicJwk);
+          params = {};
+          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
+            params.privateKey = parsed.privateKey;
+          }
+          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
+            params.publicKey = parsed.publicKey;
+          }
+          return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
+        } catch (error) {
+          err = error;
+          return reject(err);
         }
-        if (jwk.publicKey !== void 0) {
-          jwk.publicKey.kid = kid;
-          jwk.publicKey.key_ops = publicKeyOps;
-        }
-        return resolve(jwk);
       });
     },
     generateJwkKeyPair: (privateKeyOps = [], publicKeyOps = []) => {
@@ -103,56 +125,6 @@
         message = Buffer.from(payload);
         verifier.update(message);
         return resolve(verifier.verify(publicKeyPem, signature));
-      });
-    },
-    parseJwkToPem: (privateOrPublicJwk) => {
-      return new Promise((resolve, reject) => {
-        var err, params, parsed;
-        try {
-          parsed = ecKeyUtils.parseJwk(privateOrPublicJwk);
-          params = {};
-          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
-            params.privateKey = parsed.privateKey;
-          }
-          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
-            params.publicKey = parsed.publicKey;
-          }
-          return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
-        } catch (error) {
-          err = error;
-          return reject(err);
-        }
-      });
-    },
-    parsePemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) => {
-      return new Promise(async(resolve, reject) => {
-        var err, jwk, kid, params, parsed;
-        if (privateKeyOps.length === 0) {
-          privateKeyOps = ["deriveKey", "sign"];
-        }
-        if (publicKeyOps.length === 0) {
-          publicKeyOps = ["verify"];
-        }
-        try {
-          parsed = ecKeyUtils.parsePem(privateOrPublicPem);
-          params = {};
-          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
-            params.privateKey = parsed.privateKey;
-          }
-          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
-            params.publicKey = parsed.publicKey;
-          }
-          jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed);
-          kid = ((await common.randomString())).toString("hex");
-          jwk.privateKey.kid = kid;
-          jwk.privateKey.key_ops = privateKeyOps;
-          jwk.publicKey.kid = kid;
-          jwk.publicKey.key_ops = publicKeyOps;
-          return resolve(jwk);
-        } catch (error) {
-          err = error;
-          return reject(err);
-        }
       });
     },
     computeSecret: (privatePemKey, otherPublicPemKey) => {

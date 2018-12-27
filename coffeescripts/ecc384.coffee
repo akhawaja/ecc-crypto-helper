@@ -8,37 +8,54 @@ HASH_TYPE = "sha384"
 module.exports =
   curveName: CURVE_NAME
 
-  convertPemToJwk: (privateKey, publicKey, privateKeyOps = [], publicKeyOps = []) =>
-    if privateKeyOps.length is 0
-      privateKeyOps = ["deriveKey", "sign"]
-
-    if publicKeyOps.length is 0
-      publicKeyOps = ["verify"]
-
+  convertPemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) =>
     new Promise (resolve, reject) =>
-      params = {}
+      if privateKeyOps.length is 0
+        privateKeyOps = ["deriveKey", "sign"]
 
-      if privateKey isnt undefined and privateKey isnt null
-        params.privateKey = privateKey
+      if publicKeyOps.length is 0
+        publicKeyOps = ["verify"]
 
-      if publicKey isnt undefined and publicKey isnt null
-        params.publicKey = publicKey
+      try
+        parsed = ecKeyUtils.parsePem(privateOrPublicPem)
+        params = {}
 
-      if params.privateKey is undefined and params.publicKey is undefined
-        reject new Error("You must supply at least a private key or public key.")
+        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
+          params.privateKey = parsed.privateKey
 
-      jwk = ecKeyUtils.generateJwk CURVE_NAME, params
-      kid = (await common.randomString()).toString("hex")
+        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
+          params.publicKey = parsed.publicKey
 
-      if jwk.privateKey isnt undefined
-        jwk.privateKey.kid = kid
-        jwk.privateKey.key_ops = privateKeyOps
+        jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed)
+        kid = (await common.randomString()).toString("hex")
 
-      if jwk.publicKey isnt undefined
-        jwk.publicKey.kid = kid
-        jwk.publicKey.key_ops = publicKeyOps
+        if jwk.privateKey isnt undefined
+          jwk.privateKey.kid = kid
+          jwk.privateKey.key_ops = privateKeyOps
 
-      resolve jwk
+        if jwk.publicKey isnt undefined
+          jwk.publicKey.kid = kid
+          jwk.publicKey.key_ops = publicKeyOps
+
+        resolve jwk
+      catch err
+        reject err
+
+  convertJwkToPem: (privateOrPublicJwk) =>
+    new Promise (resolve, reject) =>
+      try
+        parsed = ecKeyUtils.parseJwk(privateOrPublicJwk)
+        params = {}
+
+        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
+          params.privateKey = parsed.privateKey
+
+        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
+          params.publicKey = parsed.publicKey
+
+        resolve ecKeyUtils.generatePem(CURVE_NAME, params)
+      catch err
+        reject err
 
   generateJwkKeyPair: (privateKeyOps = [], publicKeyOps = []) =>
     if privateKeyOps.length is 0
@@ -94,53 +111,6 @@ module.exports =
       message = Buffer.from payload
       verifier.update message
       resolve verifier.verify publicKeyPem, signature
-
-  parseJwkToPem: (privateOrPublicJwk) =>
-    new Promise (resolve, reject) =>
-      try
-        parsed = ecKeyUtils.parseJwk(privateOrPublicJwk)
-        params = {}
-
-        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
-          params.privateKey = parsed.privateKey
-
-        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
-          params.publicKey = parsed.publicKey
-
-        resolve ecKeyUtils.generatePem(CURVE_NAME, params)
-      catch err
-        reject err
-
-  parsePemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) =>
-    new Promise (resolve, reject) =>
-      if privateKeyOps.length is 0
-        privateKeyOps = ["deriveKey", "sign"]
-
-      if publicKeyOps.length is 0
-        publicKeyOps = ["verify"]
-
-      try
-        parsed = ecKeyUtils.parsePem(privateOrPublicPem)
-        params = {}
-
-        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
-          params.privateKey = parsed.privateKey
-
-        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
-          params.publicKey = parsed.publicKey
-
-        jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed)
-        kid = (await common.randomString()).toString("hex")
-
-        jwk.privateKey.kid = kid
-        jwk.privateKey.key_ops = privateKeyOps
-
-        jwk.publicKey.kid = kid
-        jwk.publicKey.key_ops = publicKeyOps
-
-        resolve jwk
-      catch err
-        reject err
 
   computeSecret: (privatePemKey, otherPublicPemKey) =>
     new Promise (resolve, reject) =>
