@@ -93,7 +93,7 @@ describe "Specification tests for the helper methods.", () =>
 
     it "Should derive a 512-byte value.", () =>
       initialKeyMaterial = "This is a secret"
-      size = 256
+      size = 512
       str = await hkdf.derive(initialKeyMaterial, size)
 
       expect(str).to.have.lengthOf(size)

@@ -98,7 +98,7 @@
       return it("Should derive a 512-byte value.", async() => {
         var initialKeyMaterial, size, str;
         initialKeyMaterial = "This is a secret";
-        size = 256;
+        size = 512;
         str = (await hkdf.derive(initialKeyMaterial, size));
         return expect(str).to.have.lengthOf(size);
       });
