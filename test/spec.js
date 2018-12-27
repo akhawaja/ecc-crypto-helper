@@ -194,13 +194,29 @@
         secret2 = (await ecc384.computeSecret(aliceKeyPair.privateKey, bobKeyPair.publicKey));
         return expect(Buffer.compare(secret1, secret2)).to.equal(0);
       });
-      return it("Should be able to compute a secret using ECDHE and Sha512.", async() => {
+      it("Should be able to compute a secret using ECDHE and Sha512.", async() => {
         var aliceKeyPair, bobKeyPair, secret1, secret2;
         bobKeyPair = (await ecc521.generatePemKeyPair());
         aliceKeyPair = (await ecc521.generatePemKeyPair());
         secret1 = (await ecc521.computeSecret(bobKeyPair.privateKey, aliceKeyPair.publicKey));
         secret2 = (await ecc521.computeSecret(aliceKeyPair.privateKey, bobKeyPair.publicKey));
         return expect(Buffer.compare(secret1, secret2)).to.equal(0);
+      });
+      it("Should sign and verify a message signed with a P-384 key.", async() => {
+        var keyPair, message, signature, verify;
+        message = "This is a message that was not tampered with.";
+        keyPair = (await ecc384.generatePemKeyPair());
+        signature = (await ecc384.signPayload(message, keyPair.privateKey));
+        verify = (await ecc384.verifyPayloadSignature(message, signature, keyPair.publicKey));
+        return expect(verify).to.be.true;
+      });
+      return it("Should sign and verify a message signed with a P-521 key.", async() => {
+        var keyPair, message, signature, verify;
+        message = "This is a message that was not tampered with.";
+        keyPair = (await ecc521.generatePemKeyPair());
+        signature = (await ecc521.signPayload(message, keyPair.privateKey));
+        verify = (await ecc521.verifyPayloadSignature(message, signature, keyPair.publicKey));
+        return expect(verify).to.be.true;
       });
     });
   });

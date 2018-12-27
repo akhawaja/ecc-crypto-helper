@@ -197,3 +197,19 @@ describe "Specification tests for the helper methods.", () =>
       secret2 = await ecc521.computeSecret(aliceKeyPair.privateKey, bobKeyPair.publicKey)
 
       expect(Buffer.compare(secret1, secret2)).to.equal(0)
+
+    it "Should sign and verify a message signed with a P-384 key.", () =>
+      message = "This is a message that was not tampered with."
+      keyPair = await ecc384.generatePemKeyPair()
+      signature = await ecc384.signPayload(message, keyPair.privateKey)
+      verify = await ecc384.verifyPayloadSignature(message, signature, keyPair.publicKey)
+
+      expect(verify).to.be.true
+
+    it "Should sign and verify a message signed with a P-521 key.", () =>
+      message = "This is a message that was not tampered with."
+      keyPair = await ecc521.generatePemKeyPair()
+      signature = await ecc521.signPayload(message, keyPair.privateKey)
+      verify = await ecc521.verifyPayloadSignature(message, signature, keyPair.publicKey)
+
+      expect(verify).to.be.true
