@@ -81,42 +81,66 @@
         return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
       });
     },
-    signPayload: (payload, privateKeyJwk) => {
+    signPayload: (payload, privateKeyPem) => {
       return new Promise((resolve, reject) => {
-        var jwk, message, pems, signer;
+        var message, signer;
         if (typeof payload !== "string") {
           return reject("Payload must be a string.");
         }
-        jwk = ecKeyUtils.parseJwk(privateKeyJwk);
-        pems = ecKeyUtils.generatePem(CURVE_NAME, {
-          privateKey: jwk.privateKey,
-          publicKey: jwk.publicKey
-        });
         signer = crypto.createSign(HASH_TYPE);
         message = Buffer.from(payload);
         signer.update(message);
-        return resolve(signer.sign(pems.privateKey));
+        return resolve(signer.sign(privateKeyPem));
       });
     },
-    verifyPayloadSignature: (payload, signature, publicKeyJwk) => {
+    verifyPayloadSignature: (payload, signature, publicKeyPem) => {
       return new Promise((resolve, reject) => {
-        var jwk, message, pems, verifier;
+        var message, verifier;
         if (typeof payload !== "string") {
           return reject("Payload must be a string.");
         }
-        jwk = ecKeyUtils.parseJwk(publicKeyJwk);
-        pems = ecKeyUtils.generatePem(CURVE_NAME, {
-          publicKey: jwk.publicKey
-        });
         verifier = crypto.createVerify(HASH_TYPE);
         message = Buffer.from(payload);
         verifier.update(message);
-        return resolve(verifier.verify(pems.publicKey, signature));
+        return resolve(verifier.verify(publicKeyPem, signature));
       });
     },
     parseJwkToPem: (privateOrPublicJwk) => {
       return new Promise((resolve, reject) => {
-        return resolve(ecKeyUtils.parseJwk(privateOrPublicJwk));
+        var err, params, parsed;
+        try {
+          parsed = ecKeyUtils.parseJwk(privateOrPublicJwk);
+          params = {};
+          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
+            params.privateKey = parsed.privateKey;
+          }
+          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
+            params.publicKey = parsed.publicKey;
+          }
+          return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
+        } catch (error) {
+          err = error;
+          return reject(err);
+        }
+      });
+    },
+    parsePemToJwk: (privateOrPublicPem) => {
+      return new Promise((resolve, reject) => {
+        var err, params, parsed;
+        try {
+          parsed = ecKeyUtils.parsePem(privateOrPublicPem);
+          params = {};
+          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
+            params.privateKey = parsed.privateKey;
+          }
+          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
+            params.publicKey = parsed.publicKey;
+          }
+          return resolve(ecKeyUtils.generateJwk(CURVE_NAME, parsed));
+        } catch (error) {
+          err = error;
+          return reject(err);
+        }
       });
     },
     computeSecret: (privatePemKey, otherPublicPemKey) => {

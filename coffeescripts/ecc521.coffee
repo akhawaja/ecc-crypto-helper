@@ -75,33 +75,57 @@ module.exports =
 
       resolve ecKeyUtils.generatePem CURVE_NAME, params
 
-  signPayload: (payload, privateKeyJwk) =>
+  signPayload: (payload, privateKeyPem) =>
     new Promise (resolve, reject) =>
       if typeof payload isnt "string"
         return reject "Payload must be a string."
 
-      jwk = ecKeyUtils.parseJwk privateKeyJwk
-      pems = ecKeyUtils.generatePem CURVE_NAME, {privateKey: jwk.privateKey, publicKey: jwk.publicKey}
       signer = crypto.createSign HASH_TYPE
       message = Buffer.from payload
       signer.update message
-      resolve signer.sign pems.privateKey
+      resolve signer.sign privateKeyPem
 
-  verifyPayloadSignature: (payload, signature, publicKeyJwk) =>
+  verifyPayloadSignature: (payload, signature, publicKeyPem) =>
     new Promise (resolve, reject) =>
       if typeof payload isnt "string"
         return reject "Payload must be a string."
 
-      jwk = ecKeyUtils.parseJwk publicKeyJwk
-      pems = ecKeyUtils.generatePem CURVE_NAME, {publicKey: jwk.publicKey}
       verifier = crypto.createVerify HASH_TYPE
       message = Buffer.from payload
       verifier.update message
-      resolve verifier.verify pems.publicKey, signature
+      resolve verifier.verify publicKeyPem, signature
 
   parseJwkToPem: (privateOrPublicJwk) =>
     new Promise (resolve, reject) =>
-      resolve ecKeyUtils.parseJwk(privateOrPublicJwk)
+      try
+        parsed = ecKeyUtils.parseJwk(privateOrPublicJwk)
+        params = {}
+
+        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
+          params.privateKey = parsed.privateKey
+
+        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
+          params.publicKey = parsed.publicKey
+
+        resolve ecKeyUtils.generatePem(CURVE_NAME, params)
+      catch err
+        reject err
+
+  parsePemToJwk: (privateOrPublicPem) =>
+    new Promise (resolve, reject) =>
+      try
+        parsed = ecKeyUtils.parsePem(privateOrPublicPem)
+        params = {}
+
+        if parsed.privateKey isnt undefined and parsed.privateKey isnt null
+          params.privateKey = parsed.privateKey
+
+        if parsed.publicKey isnt undefined and parsed.publicKey isnt null
+          params.publicKey = parsed.publicKey
+
+        resolve ecKeyUtils.generateJwk(CURVE_NAME, parsed)
+      catch err
+        reject err
 
   computeSecret: (privatePemKey, otherPublicPemKey) =>
     new Promise (resolve, reject) =>
