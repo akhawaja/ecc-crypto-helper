@@ -4,6 +4,12 @@
   crypto = require("crypto");
 
   module.exports = {
+    /**
+     * Generate a random string.
+     *
+     * @param {number} size - The length of the random string to generate.
+     * @returns {string} The random string.
+     */
     randomString: (size = 16) => {
       return new Promise((resolve, reject) => {
         var buffer;
@@ -17,6 +23,13 @@
         });
       });
     },
+    /**
+     * Generate a random number between a range.
+     *
+     * @param {number} low - The starting range.
+     * @param {number} high - The ending range.
+     * @returns {number} The random number.
+     */
     randomNumber: (low = 1, high = 100000) => {
       return new Promise((resolve, reject) => {
         if (low === high) {

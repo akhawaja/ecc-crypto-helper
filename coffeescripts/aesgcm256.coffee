@@ -2,6 +2,13 @@ crypto = require "crypto"
 common = require "./common"
 
 module.exports =
+  ###*
+   * Encrypt a string using a secret.
+   *
+   * @param {string} text - The text to encrypt.
+   * @param {string} secret - The secret to use for decryption.
+   * @returns {Buffer} The cipher text.
+  ###
   encrypt: (text, secret) =>
     new Promise (resolve, reject) =>
       masterKey = null
@@ -26,12 +33,24 @@ module.exports =
         authTag = cipher.getAuthTag()
         resolve Buffer.concat [salt, iv, authTag, cipherText]
 
-  decrypt: (cipherTextBuffer, secret) =>
+  ###*
+   * Decrypt a previously encrypted text.
+   *
+   * @param {Buffer} cipherText - The encrypted text.
+   * @param {string} secret - The secret to use for decryption.
+   * @returns {string} The decrypted text.
+  ###
+  decrypt: (cipherText, secret) =>
     new Promise (resolve, reject) =>
       masterKey = null
+      cipherTextBuffer = null
 
-      if false is Buffer.isBuffer cipherTextBuffer
-        return reject "cipherTextBuffer should be of type Buffer. Found '#{typeof cipherTextBuffer}'."
+      if typeof cipherText is "string"
+        cipherTextBuffer = Buffer.from cipherText
+      if Buffer.isBuffer cipherText
+        cipherTextBuffer = cipherText
+      else
+        return reject new Error("cipherText should be a Buffer or string. Found '#{typeof cipherTextBuffer}'.")
 
       if Buffer.isBuffer secret
         masterKey = secret

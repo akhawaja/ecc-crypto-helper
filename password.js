@@ -1,4 +1,12 @@
 (function() {
+
+  /**
+   * Hash the password using the Scrypt algorithm.
+   *
+   * @param {string} plainPassword - The password to hash.
+   * @param {string} salt - Additional entropy to use when hashing the password.
+   * @returns {Buffer}
+   */
   var common, crypto, scryptPassword;
 
   crypto = require("crypto");
@@ -27,7 +35,7 @@
       return new Promise(async(resolve, reject) => {
         var derivedBuffer, hash, salt;
         if (Buffer.isBuffer(derivedPassword)) {
-          derivedBuffer = derivedPassword;
+          derivedBuffer = derivedPassword; // We assume the string is hex encoded
         } else {
           derivedBuffer = Buffer.from(derivedPassword, "hex");
         }

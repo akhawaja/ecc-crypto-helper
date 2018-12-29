@@ -1,4 +1,10 @@
 module.exports =
+  ###*
+   * Base64 URL encode a given text.
+   *
+   * @param {string} text - The text to encode.
+   * @returns {string} The encoded text.
+  ###
   urlEncode: (text) =>
     new Promise (resolve, reject) =>
       if Buffer.isBuffer text
@@ -13,6 +19,12 @@ module.exports =
 
       resolve encoded
 
+  ###*
+   * Base64 URL decode a given text.
+   *
+   * @param {string} text - The text to decode.
+   * @returns {string} The decoded text.
+  ###
   urlDecode: (encodedText) =>
     new Promise (resolve, reject) =>
       if typeof encodedText is "string"

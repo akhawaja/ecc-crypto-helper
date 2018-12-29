@@ -8,6 +8,14 @@ HASH_TYPE = "sha384"
 module.exports =
   curveName: CURVE_NAME
 
+  ###*
+   * Convert a PEM certificate to a JSON Web Key.
+   *
+   * @param {string|Buffer} privateOrPublicPem - The private or public PEM key.
+   * @param {Array} privateKeyOps - The operations intended for the private key.
+   * @param {Array} publicKeyOps - The operations intended for the public key.
+   * @returns {Object} The converted certificate.
+  ###
   convertPemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) =>
     new Promise (resolve, reject) =>
       if privateKeyOps.length is 0
@@ -41,6 +49,12 @@ module.exports =
       catch err
         reject err
 
+  ###*
+   * Convert a JSON Web Key to a PEM certificate.
+   *
+   * @param {string|Buffer} privateOrPublicJwk - The private or public JSON Web Key.
+   * @returns {Object} The converted certificate.
+  ###
   convertJwkToPem: (privateOrPublicJwk) =>
     new Promise (resolve, reject) =>
       try
@@ -57,6 +71,13 @@ module.exports =
       catch err
         reject err
 
+  ###*
+   * Generate an ECDH key pair as a JSON Web Key.
+   *
+   * @param {Array} privateKeyOps - The operations intended for the private key.
+   * @param {Array} publicKeyOps - The operations intended for the public key.
+   * @returns {string} The ECDH key pair.
+  ###
   generateJwkKeyPair: (privateKeyOps = [], publicKeyOps = []) =>
     if privateKeyOps.length is 0
       privateKeyOps = ["deriveKey", "sign"]
@@ -82,6 +103,11 @@ module.exports =
 
       resolve jwk
 
+  ###*
+   * Generate an ECDH key pair as PEM certificates.
+   *
+   * @returns {Object} The PEM certificates.
+  ###
   generatePemKeyPair: () =>
     new Promise (resolve, reject) =>
       ecdh = crypto.createECDH CURVE_NAME
@@ -92,6 +118,13 @@ module.exports =
 
       resolve ecKeyUtils.generatePem CURVE_NAME, params
 
+  ###*
+   * Sign a payload to prevent it from tamper.
+   *
+   * @param {string} payload - The payload to sign.
+   * @param {string} privateKeyPem - The private key in PEM format.
+   * @returns {Buffer} The signature for the payload.
+  ###
   signPayload: (payload, privateKeyPem) =>
     new Promise (resolve, reject) =>
       if typeof payload isnt "string"
@@ -100,18 +133,43 @@ module.exports =
       signer = crypto.createSign HASH_TYPE
       message = Buffer.from payload
       signer.update message
-      resolve signer.sign privateKeyPem
+      signature = signer.sign privateKeyPem
 
-  verifyPayloadSignature: (payload, signature, publicKeyPem) =>
+      resolve signature
+
+  ###*
+   * Verify the signature of a given payload.
+   *
+   * @param {string} payload - The payload against which the signature will be checked.
+   * @param {string|Buffer} signature - The signature of the payload.
+   * @param {Object} publicPemKey - The public ECDH key in PEM format.
+   * @returns {boolean}
+  ###
+  verifyPayloadSignature: (payload, signature, publicPemKey) =>
     new Promise (resolve, reject) =>
       if typeof payload isnt "string"
         return reject "Payload must be a string."
 
       verifier = crypto.createVerify HASH_TYPE
       message = Buffer.from payload
-      verifier.update message
-      resolve verifier.verify publicKeyPem, signature
 
+      if Buffer.isBuffer signature
+        signatureBuffer = signature
+      else if typeof signature is "string"
+        signatureBuffer = Buffer.from signature
+      else
+        reject new Error("Buffer or string expected for signature.")
+
+      verifier.update message
+      resolve verifier.verify publicPemKey, signatureBuffer
+
+  ###*
+   * Compute an ECDH shared secret.
+   *
+   * @param {Object} privatePemKey - The private ECDH key in PEM format.
+   * @param {Object} otherPublicPemKey - The other public ECDH key in PEM format.
+   * @returns {Buffer}
+  ###
   computeSecret: (privatePemKey, otherPublicPemKey) =>
     new Promise (resolve, reject) =>
       try

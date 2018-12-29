@@ -1,4 +1,29 @@
 (function() {
+
+  /**
+   * Build a JSON web token.
+   *
+   * @param {string} algorithm - The algorithm to use.
+   * @param {string|Buffer} secretOrPrivateKey - The shared secret or an ECDH
+   *                                             private key in PEM format.
+   * @param {Object} claims - Additional claims supplied by the client.
+   * @returns {string}
+   */
+  /**
+   * Decode a JSON web token into its constituent parts.
+   *
+   * @param {string} jsonWebToken - The JSON web token.
+   * @returns {Object}
+   */
+  /**
+   * Verify a JSON web token. Verifies the expiration and signature.
+   *
+   * @param {string} algorithm - The algorithm used.
+   * @param {string|Buffer} secretOrPublicKey - The shared secret or ECDH public
+   *                                            key in PEM format.
+   * @param {string} jsonWebToken - The JSON web token to verify.
+   * @returns {boolean}
+   */
   var base64, common, create, decode, jws, verify;
 
   jws = require("jws");

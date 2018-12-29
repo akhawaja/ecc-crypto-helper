@@ -2,6 +2,12 @@ jws = require "jws"
 base64 = require "./base64"
 common = require "./common"
 
+###*
+ * Decode a JSON web token into its constituent parts.
+ *
+ * @param {string} jsonWebToken - The JSON web token.
+ * @returns {Object}
+###
 decode = (jsonWebToken) =>
   new Promise (resolve, reject) =>
     parts = jsonWebToken.split(".")
@@ -22,6 +28,15 @@ decode = (jsonWebToken) =>
 
     resolve decoded
 
+###*
+ * Build a JSON web token.
+ *
+ * @param {string} algorithm - The algorithm to use.
+ * @param {string|Buffer} secretOrPrivateKey - The shared secret or an ECDH
+ *                                             private key in PEM format.
+ * @param {Object} claims - Additional claims supplied by the client.
+ * @returns {string}
+###
 create = (algorithm, secretOrPrivateKey, claims = {}) =>
   new Promise (resolve, reject) =>
     header =
@@ -52,6 +67,15 @@ create = (algorithm, secretOrPrivateKey, claims = {}) =>
     catch err
       reject err
 
+###*
+ * Verify a JSON web token. Verifies the expiration and signature.
+ *
+ * @param {string} algorithm - The algorithm used.
+ * @param {string|Buffer} secretOrPublicKey - The shared secret or ECDH public
+ *                                            key in PEM format.
+ * @param {string} jsonWebToken - The JSON web token to verify.
+ * @returns {boolean}
+###
 verify = (algorithm, secretOrPublicKey, jsonWebToken) =>
   new Promise (resolve, reject) =>
     # Make sure we have a valid JSON Web Token

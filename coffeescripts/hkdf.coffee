@@ -1,6 +1,18 @@
 common = require "./common"
 
 module.exports =
+  ###*
+   * Derive a cryptographically strong set of values using the contraction and
+   * expansion method of HKDF.
+   *
+   * @param {string} ikm - The initial key material. A shared secret or some
+   *                       other random value you know about.
+   * @param {number} size - The number of bytes to derive.
+   * @param {string} salt - Additional entropy.
+   * @param {string} info - Additional entropy to bind the bytes derived to a
+   *                        specific entity.
+   * @returns {Buffer}
+  ###
   derive: (ikm, size, salt = null, info = null) =>
     hkdf = require "futoin-hkdf"
 

@@ -6,6 +6,13 @@
   common = require("./common");
 
   module.exports = {
+    /**
+     * Encrypt a string using a secret.
+     *
+     * @param {string} text - The text to encrypt.
+     * @param {string} secret - The secret to use for decryption.
+     * @returns {Buffer} The cipher text.
+     */
     encrypt: (text, secret) => {
       return new Promise(async(resolve, reject) => {
         var iv, masterKey, salt;
@@ -32,12 +39,25 @@
         });
       });
     },
-    decrypt: (cipherTextBuffer, secret) => {
+    /**
+     * Decrypt a previously encrypted text.
+     *
+     * @param {Buffer} cipherText - The encrypted text.
+     * @param {string} secret - The secret to use for decryption.
+     * @returns {string} The decrypted text.
+     */
+    decrypt: (cipherText, secret) => {
       return new Promise((resolve, reject) => {
-        var authTag, cipherText, iv, masterKey, salt;
+        var authTag, cipherTextBuffer, iv, masterKey, salt;
         masterKey = null;
-        if (false === Buffer.isBuffer(cipherTextBuffer)) {
-          return reject(`cipherTextBuffer should be of type Buffer. Found '${typeof cipherTextBuffer}'.`);
+        cipherTextBuffer = null;
+        if (typeof cipherText === "string") {
+          cipherTextBuffer = Buffer.from(cipherText);
+        }
+        if (Buffer.isBuffer(cipherText)) {
+          cipherTextBuffer = cipherText;
+        } else {
+          return reject(new Error(`cipherText should be a Buffer or string. Found '${typeof cipherTextBuffer}'.`));
         }
         if (Buffer.isBuffer(secret)) {
           masterKey = secret;
