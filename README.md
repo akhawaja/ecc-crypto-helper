@@ -38,10 +38,44 @@ the `Features` section for a quick description of what is available.
 $> yarn add ecc-crypto-helper
 ```
 
-2. Just import the file in your Node.js project.
+2. Just import the file in your NodeJS project and start using it.
 
 ```javascript
-eccHelper = require("ecc-crypto-helper")
+var eccHelper = require("ecc-crypto-helper")
+
+// Generate a random string
+var randomStr = await eccHelper.common.randomString();
+
+// Generate a random number between 1 and 100
+var randomNum = await eccHelper.common.randomNumber(1, 100);
+
+// Base64 URL encode a string
+var encoded = await eccHelper.base64.urlEncode("Hello world");
+
+// Encrypt a string using AES-GCM-256
+var password = "This is a secret";
+var cipherText = await eccHelper.aesGcm256.encrypt("This is a message", password);
+
+// Decrypt the previously encrypted string
+var plainText = await eccHelper.aesGcm256.decrypt(cipherText, password);
+
+// Derive a random set of characters using HKDF
+var initialKeyMaterial = "This is a secret";
+var size = 64;
+var bytesBuffer = await hkdf.derive(initialKeyMaterial, size);
+
+// Generate a JSON Web Token using HS512
+var sharedSecret = "This is a secret";
+var webToken = await eccHelper.jwt.hs384.create(sharedSecret, {"username":"bob"});
+
+// Decode the JSON Web Token
+var decodedToken = await eccHelper.jwt.decode(webToken);
+
+// Generate an ECDH key pair
+var keyPair = await eccHelper.ecc521.generatePemKeyPair();
+
+// Generate a JSON Web Token using ES512
+webToken = await eccHelper.jwt.es512.create(keyPair.privateKey, {"username":"bob"});
 ```
 
-See the `test/spec.js` file for examples.
+See the `test/spec.js` file for more examples.
