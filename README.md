@@ -62,7 +62,7 @@ var plainText = await eccHelper.aesGcm256.decrypt(cipherText, password);
 // Derive a random set of characters using HKDF
 var initialKeyMaterial = "This is a secret";
 var size = 64;
-var bytesBuffer = await hkdf.derive(initialKeyMaterial, size);
+var bytesBuffer = await eccHelper.hkdf.derive(initialKeyMaterial, size);
 
 // Generate a JSON Web Token using HS512
 var sharedSecret = "This is a secret";
