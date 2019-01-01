@@ -1,6 +1,6 @@
 {
   "name": "ecc-crypto-helper",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A Node.js elliptic curve crypto helper library.",
   "main": "index.js",
   "author": {
