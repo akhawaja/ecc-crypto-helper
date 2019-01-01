@@ -66,7 +66,8 @@ var bytesBuffer = await eccHelper.hkdf.derive(initialKeyMaterial, size);
 
 // Generate a JSON Web Token using HS512
 var sharedSecret = "This is a secret";
-var webToken = await eccHelper.jwt.hs384.create(sharedSecret, {"username":"bob"});
+var claims = {"username":"bob"};
+var webToken = await eccHelper.jwt.hs512.create(sharedSecret, claims);
 
 // Decode the JSON Web Token
 var decodedToken = await eccHelper.jwt.decode(webToken);
@@ -75,7 +76,7 @@ var decodedToken = await eccHelper.jwt.decode(webToken);
 var keyPair = await eccHelper.ecc521.generatePemKeyPair();
 
 // Generate a JSON Web Token using ES512
-webToken = await eccHelper.jwt.es512.create(keyPair.privateKey, {"username":"bob"});
+webToken = await eccHelper.jwt.es512.create(keyPair.privateKey, claims);
 ```
 
 See the `test/spec.js` file for more examples.
