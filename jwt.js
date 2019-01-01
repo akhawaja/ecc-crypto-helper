@@ -76,11 +76,13 @@
       claims.nbf = currentTime;
       claims.jti = ((await common.randomString())).toString("hex");
       try {
-        return resolve(jws.sign({
+        return jws.createSign({
           header: header,
           payload: claims,
           secret: secretOrPrivateKey
-        }));
+        }).on("done", (signature) => {
+          return resolve(signature);
+        });
       } catch (error) {
         err = error;
         return reject(err);
@@ -106,7 +108,13 @@
       }
       try {
         // Validate the signature
-        return resolve(jws.verify(jsonWebToken, algorithm, secretOrPublicKey));
+        return jws.createVerify({
+          signature: jsonWebToken,
+          algorithm: algorithm,
+          key: secretOrPublicKey
+        }).on("done", (verified) => {
+          return resolve(verified);
+        });
       } catch (error) {
         err = error;
         return reject(err);

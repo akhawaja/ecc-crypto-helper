@@ -59,11 +59,11 @@ create = (algorithm, secretOrPrivateKey, claims = {}) =>
     claims.jti = (await common.randomString()).toString("hex")
 
     try
-      resolve jws.sign({
+      jws.createSign({
         header: header
         payload: claims
         secret: secretOrPrivateKey
-      })
+      }).on "done", (signature) => resolve signature
     catch err
       reject err
 
@@ -93,7 +93,11 @@ verify = (algorithm, secretOrPublicKey, jsonWebToken) =>
 
     # Validate the signature
     try
-      resolve jws.verify(jsonWebToken, algorithm, secretOrPublicKey)
+      jws.createVerify({
+        signature: jsonWebToken
+        algorithm: algorithm
+        key: secretOrPublicKey
+      }).on "done", (verified) => resolve verified
     catch err
       reject err
 
