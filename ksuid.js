@@ -1,7 +1,5 @@
 (function() {
-  var CHARACTERS, EPOCH, MAX_ENCODED_STRING_LENGTH, MAX_LENGTH, PAYLOAD_MAX_LENGTH, TIMESTAMP_MAX_LENGTH, base62, common, crypto, hkdf;
-
-  CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var EPOCH, MAX_ENCODED_STRING_LENGTH, MAX_LENGTH, PAYLOAD_MAX_LENGTH, TIMESTAMP_MAX_LENGTH, base62, common, crypto, hkdf;
 
   EPOCH = 1546300800;
 
@@ -13,7 +11,7 @@
 
   MAX_LENGTH = TIMESTAMP_MAX_LENGTH + PAYLOAD_MAX_LENGTH;
 
-  base62 = require("base-x")(CHARACTERS);
+  base62 = require("./base62");
 
   crypto = require("crypto");
 
@@ -41,7 +39,7 @@
         timestamp = Buffer.allocUnsafe(TIMESTAMP_MAX_LENGTH);
         timestamp.writeInt32BE(utc, 0);
         buffer = Buffer.concat([timestamp, payload], MAX_LENGTH);
-        contents = base62.encode(buffer);
+        contents = (await base62.encode(buffer));
         if (contents.length === MAX_ENCODED_STRING_LENGTH) {
           return resolve(contents);
         } else {
@@ -56,12 +54,12 @@
      * @returns {Object} The component parts of the KSUID.
      */
     parse: (ksuidValue) => {
-      return new Promise((resolve, reject) => {
+      return new Promise(async(resolve, reject) => {
         var buffer, payloadBuffer, timestampBuffer, utc;
         if (ksuidValue.length !== MAX_ENCODED_STRING_LENGTH) {
           reject(new Error("ksuidValue does not appear to be a KSUID."));
         }
-        buffer = base62.decode(ksuidValue);
+        buffer = (await base62.decode(ksuidValue));
         timestampBuffer = buffer.slice(0, TIMESTAMP_MAX_LENGTH);
         payloadBuffer = buffer.slice(TIMESTAMP_MAX_LENGTH, PAYLOAD_MAX_LENGTH);
         utc = timestampBuffer.readInt32BE(0);
