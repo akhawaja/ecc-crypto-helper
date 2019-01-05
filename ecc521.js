@@ -40,7 +40,7 @@
             params.publicKey = parsed.publicKey;
           }
           jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed);
-          kid = ((await common.randomString())).toString("hex");
+          kid = ((await common.random())).toString("hex");
           if (jwk.privateKey !== void 0) {
             jwk.privateKey.kid = kid;
             jwk.privateKey.key_ops = privateKeyOps;
@@ -104,7 +104,7 @@
           publicKey: ecdh.getPublicKey()
         };
         jwk = ecKeyUtils.generateJwk(CURVE_NAME, params);
-        kid = ((await common.randomString())).toString("hex");
+        kid = ((await common.random())).toString("hex");
         jwk.privateKey.kid = kid;
         jwk.privateKey.key_ops = privateKeyOps;
         jwk.publicKey.kid = kid;

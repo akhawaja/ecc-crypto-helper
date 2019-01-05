@@ -35,7 +35,7 @@ module.exports =
           params.publicKey = parsed.publicKey
 
         jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed)
-        kid = (await common.randomString()).toString("hex")
+        kid = (await common.random()).toString("hex")
 
         if jwk.privateKey isnt undefined
           jwk.privateKey.kid = kid
@@ -93,7 +93,7 @@ module.exports =
         publicKey: ecdh.getPublicKey()
 
       jwk = ecKeyUtils.generateJwk CURVE_NAME, params
-      kid = (await common.randomString()).toString("hex")
+      kid = (await common.random()).toString("hex")
 
       jwk.privateKey.kid = kid
       jwk.privateKey.key_ops = privateKeyOps
