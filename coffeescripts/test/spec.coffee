@@ -145,7 +145,7 @@ describe "Specification tests for the helper methods.", () =>
       hashedPassword = await password.hash(secret)
       match = await password.match(secret, hashedPassword)
 
-      expect(hashedPassword).to.have.lengthOf(96)
+      expect(hashedPassword).to.have.lengthOf(128)
       expect(match).to.be.true
 
   describe "Testing the jwt, ecc384, and ecc521 libraries in concert.", () =>

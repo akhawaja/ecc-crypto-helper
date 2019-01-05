@@ -149,7 +149,7 @@
         secret = "This is my password";
         hashedPassword = (await password.hash(secret));
         match = (await password.match(secret, hashedPassword));
-        expect(hashedPassword).to.have.lengthOf(96);
+        expect(hashedPassword).to.have.lengthOf(128);
         return expect(match).to.be.true;
       });
     });
