@@ -1,9 +1,11 @@
 (function() {
-  var CIPHER, DIGEST, ITERATIONS, KEY_LENGTH, common, crypto;
+  var AUTH_TAG_SIZE, CIPHER, DIGEST, ITERATIONS, IV_SIZE, KEY_LENGTH, SALT_SIZE, common, crypto, hkdf;
 
   crypto = require("crypto");
 
   common = require("./common");
+
+  hkdf = require("./hkdf");
 
   ITERATIONS = 10000;
 
@@ -12,6 +14,12 @@
   DIGEST = "sha512";
 
   CIPHER = "aes-256-gcm";
+
+  SALT_SIZE = 64;
+
+  AUTH_TAG_SIZE = 16;
+
+  IV_SIZE = 12; // A 12-bytes (96-bit initialization vector) is recommended for AES-GCM-256
 
   module.exports = {
     /**
@@ -36,14 +44,15 @@
         } else {
           return reject(`secret should be either a String or Buffer. Found '${typeof secret}'.`);
         }
-        salt = (await common.random(64));
-        iv = (await common.random(12)); // A 12-bytes (96-bit initialization vector) is recommended for AES-GCM-256
-        return crypto.pbkdf2(masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) => {
-          var authTag, cipher, cipherText;
+        salt = (await common.random(SALT_SIZE));
+        iv = (await common.random(IV_SIZE));
+        return crypto.pbkdf2(masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, async(err, derivedKey) => {
+          var authTag, cipher, cipherText, expandedKey;
           if (err != null) {
             return reject(err);
           }
-          cipher = crypto.createCipheriv(CIPHER, derivedKey, iv);
+          expandedKey = (await hkdf.derive(derivedKey, KEY_LENGTH, salt));
+          cipher = crypto.createCipheriv(CIPHER, expandedKey, iv);
           cipherText = Buffer.concat([cipher.update(text, "utf8"), cipher.final()]);
           authTag = cipher.getAuthTag();
           return resolve(Buffer.concat([salt, iv, authTag, cipherText]));
@@ -77,13 +86,14 @@
         } else {
           return reject(`secret should be either a String or Buffer. Found '${typeof secret}'.`);
         }
-        salt = cipherTextBuffer.slice(0, 64);
-        iv = cipherTextBuffer.slice(64, 76);
-        authTag = cipherTextBuffer.slice(76, 92);
-        cipherText = cipherTextBuffer.slice(92);
-        return crypto.pbkdf2(masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) => {
-          var cipher, text;
-          cipher = crypto.createDecipheriv(CIPHER, derivedKey, iv);
+        salt = cipherTextBuffer.slice(0, SALT_SIZE);
+        iv = cipherTextBuffer.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
+        authTag = cipherTextBuffer.slice(SALT_SIZE + IV_SIZE, SALT_SIZE + IV_SIZE + AUTH_TAG_SIZE);
+        cipherText = cipherTextBuffer.slice(SALT_SIZE + IV_SIZE + AUTH_TAG_SIZE);
+        return crypto.pbkdf2(masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, async(err, derivedKey) => {
+          var cipher, expandedKey, text;
+          expandedKey = (await hkdf.derive(derivedKey, KEY_LENGTH, salt));
+          cipher = crypto.createDecipheriv(CIPHER, expandedKey, iv);
           cipher.setAuthTag(authTag);
           text = cipher.update(cipherText, "binary", "utf8") + cipher.final("utf8");
           return resolve(text);

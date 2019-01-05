@@ -1,10 +1,14 @@
 crypto = require "crypto"
 common = require "./common"
+hkdf = require "./hkdf"
 
 ITERATIONS = 10000
 KEY_LENGTH = 32 # AES-GCM-256 requires a 32-bytes key length
 DIGEST = "sha512"
 CIPHER = "aes-256-gcm"
+SALT_SIZE = 64
+AUTH_TAG_SIZE = 16
+IV_SIZE = 12 # A 12-bytes (96-bit initialization vector) is recommended for AES-GCM-256
 
 module.exports =
   ###*
@@ -29,14 +33,15 @@ module.exports =
       else
         return reject "secret should be either a String or Buffer. Found '#{typeof secret}'."
 
-      salt = await common.random 64
-      iv = await common.random 12 # A 12-bytes (96-bit initialization vector) is recommended for AES-GCM-256
+      salt = await common.random SALT_SIZE
+      iv = await common.random IV_SIZE
 
       crypto.pbkdf2 masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) =>
         if err?
           return reject err
 
-        cipher = crypto.createCipheriv CIPHER, derivedKey, iv
+        expandedKey = await hkdf.derive derivedKey, KEY_LENGTH, salt
+        cipher = crypto.createCipheriv CIPHER, expandedKey, iv
         cipherText = Buffer.concat [cipher.update(text, "utf8"), cipher.final()]
         authTag = cipher.getAuthTag()
         resolve Buffer.concat [salt, iv, authTag, cipherText]
@@ -67,12 +72,13 @@ module.exports =
       else
         return reject "secret should be either a String or Buffer. Found '#{typeof secret}'."
 
-      salt = cipherTextBuffer.slice 0, 64
-      iv = cipherTextBuffer.slice 64, 76
-      authTag = cipherTextBuffer.slice 76, 92
-      cipherText = cipherTextBuffer.slice 92
+      salt = cipherTextBuffer.slice 0, SALT_SIZE
+      iv = cipherTextBuffer.slice SALT_SIZE, SALT_SIZE + IV_SIZE
+      authTag = cipherTextBuffer.slice SALT_SIZE + IV_SIZE, SALT_SIZE + IV_SIZE + AUTH_TAG_SIZE
+      cipherText = cipherTextBuffer.slice SALT_SIZE + IV_SIZE + AUTH_TAG_SIZE
       crypto.pbkdf2 masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) =>
-        cipher = crypto.createDecipheriv CIPHER, derivedKey, iv
+        expandedKey = await hkdf.derive derivedKey, KEY_LENGTH, salt
+        cipher = crypto.createDecipheriv CIPHER, expandedKey, iv
         cipher.setAuthTag authTag
         text = cipher.update(cipherText, "binary", "utf8") + cipher.final("utf8")
         resolve text
