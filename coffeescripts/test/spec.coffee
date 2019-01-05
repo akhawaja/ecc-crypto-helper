@@ -1,14 +1,14 @@
 expect = require("chai").expect
 
 describe "Specification tests for the helper methods.", () =>
+  common = require "../common"
+
   describe "Testing the common library.", () =>
-    common = require "../common"
-
     it "Should generate a random string.", () =>
-      str1 = await common.randomString()
-      str2 = await common.randomString()
+      str1 = await common.random()
+      str2 = await common.random()
 
-      expect(str1).to.not.equal(str2)
+      expect(str1.toString("hex")).to.not.equal(str2.toString("hex"))
       expect(str1).to.have.lengthOf(16)
       expect(str2).to.have.lengthOf(16)
 
@@ -97,6 +97,16 @@ describe "Specification tests for the helper methods.", () =>
       str = await hkdf.derive(initialKeyMaterial, size)
 
       expect(str).to.have.lengthOf(size)
+
+    it "Should derive repeatable values with same inputs.", () =>
+      initialKeyMaterial = "This is a secret."
+      salt = await common.random()
+      info = "name=unit-test"
+      size = 64
+      hkdf1 = await hkdf.derive(initialKeyMaterial, size, salt, info)
+      hkdf2 = await hkdf.derive(initialKeyMaterial, size, salt, info)
+
+      expect(hkdf1.compare(hkdf2)).to.equal(0)
 
   describe "Testing the hmac library.", () =>
     hmac = require "../hmac"
@@ -243,3 +253,37 @@ describe "Specification tests for the helper methods.", () =>
       expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
       expect(pems.privateKey).to.equal(pems2.privateKey)
       expect(pems.publicKey).to.equal(pems2.publicKey)
+
+  describe "Test the ksuid library.", () =>
+    ksuid = require "../ksuid"
+    common = require "../common"
+
+    it "Should generate a 27-character KSUID.", () =>
+      ksuidValue = await ksuid.create()
+      expect(ksuidValue).to.have.lengthOf(27)
+
+    it "Should have the expected timestamp value.", () =>
+      timestamp = await common.utcTimestamp()
+      ksuidValue = await ksuid.create timestamp
+      componentParts = await ksuid.parse ksuidValue
+      expect(componentParts.timestamp).to.equal(timestamp)
+      expect(componentParts).to.have.property("ksuid")
+      expect(componentParts).to.have.property("time")
+      expect(componentParts).to.have.property("payload")
+
+    it "Should generate several KSUID values that are sorted alphabetically.", () =>
+      bucket = []
+
+      for i in [1..100]
+        ksuidValue = await ksuid.create()
+        bucket.push ksuidValue
+
+      sorted = bucket.sort (a, b) =>
+        if a > b
+          return 1
+        else if a < b
+          return -1
+        else
+          return 0
+
+      expect(sorted).to.equal(bucket)

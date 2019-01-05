@@ -4,14 +4,14 @@
   expect = require("chai").expect;
 
   describe("Specification tests for the helper methods.", () => {
+    var common;
+    common = require("../common");
     describe("Testing the common library.", () => {
-      var common;
-      common = require("../common");
       it("Should generate a random string.", async() => {
         var str1, str2;
-        str1 = (await common.randomString());
-        str2 = (await common.randomString());
-        expect(str1).to.not.equal(str2);
+        str1 = (await common.random());
+        str2 = (await common.random());
+        expect(str1.toString("hex")).to.not.equal(str2.toString("hex"));
         expect(str1).to.have.lengthOf(16);
         return expect(str2).to.have.lengthOf(16);
       });
@@ -95,12 +95,22 @@
         str = (await hkdf.derive(initialKeyMaterial, size));
         return expect(str).to.have.lengthOf(size);
       });
-      return it("Should derive a 512-byte value.", async() => {
+      it("Should derive a 512-byte value.", async() => {
         var initialKeyMaterial, size, str;
         initialKeyMaterial = "This is a secret";
         size = 512;
         str = (await hkdf.derive(initialKeyMaterial, size));
         return expect(str).to.have.lengthOf(size);
+      });
+      return it("Should derive repeatable values with same inputs.", async() => {
+        var hkdf1, hkdf2, info, initialKeyMaterial, salt, size;
+        initialKeyMaterial = "This is a secret.";
+        salt = (await common.random());
+        info = "name=unit-test";
+        size = 64;
+        hkdf1 = (await hkdf.derive(initialKeyMaterial, size, salt, info));
+        hkdf2 = (await hkdf.derive(initialKeyMaterial, size, salt, info));
+        return expect(hkdf1.compare(hkdf2)).to.equal(0);
       });
     });
     describe("Testing the hmac library.", () => {
@@ -143,7 +153,7 @@
         return expect(match).to.be.true;
       });
     });
-    return describe("Testing the jwt, ecc384, and ecc521 libraries in concert.", () => {
+    describe("Testing the jwt, ecc384, and ecc521 libraries in concert.", () => {
       var claims, ecc384, ecc521, jwt, sharedSecret;
       jwt = require("../jwt");
       ecc384 = require("../ecc384");
@@ -247,6 +257,44 @@
         expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y);
         expect(pems.privateKey).to.equal(pems2.privateKey);
         return expect(pems.publicKey).to.equal(pems2.publicKey);
+      });
+    });
+    return describe("Test the ksuid library.", () => {
+      var ksuid;
+      ksuid = require("../ksuid");
+      common = require("../common");
+      it("Should generate a 27-character KSUID.", async() => {
+        var ksuidValue;
+        ksuidValue = (await ksuid.create());
+        return expect(ksuidValue).to.have.lengthOf(27);
+      });
+      it("Should have the expected timestamp value.", async() => {
+        var componentParts, ksuidValue, timestamp;
+        timestamp = (await common.utcTimestamp());
+        ksuidValue = (await ksuid.create(timestamp));
+        componentParts = (await ksuid.parse(ksuidValue));
+        expect(componentParts.timestamp).to.equal(timestamp);
+        expect(componentParts).to.have.property("ksuid");
+        expect(componentParts).to.have.property("time");
+        return expect(componentParts).to.have.property("payload");
+      });
+      return it("Should generate several KSUID values that are sorted alphabetically.", async() => {
+        var bucket, i, j, ksuidValue, sorted;
+        bucket = [];
+        for (i = j = 1; j <= 100; i = ++j) {
+          ksuidValue = (await ksuid.create());
+          bucket.push(ksuidValue);
+        }
+        sorted = bucket.sort((a, b) => {
+          if (a > b) {
+            return 1;
+          } else if (a < b) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+        return expect(sorted).to.equal(bucket);
       });
     });
   });
