@@ -1,5 +1,9 @@
 crypto = require "crypto"
 common = require "./common"
+hkdf = require "./hkdf"
+
+SALT_SIZE = 64
+KEY_LENGTH = 64
 
 ###*
  * Hash the password using the Scrypt algorithm.
@@ -11,18 +15,32 @@ common = require "./common"
 scryptPassword = (plainPassword, salt = null) =>
   new Promise (resolve, reject) =>
     if salt is null
-      salt = await common.random(32)
+      salt = await common.random SALT_SIZE
 
-    crypto.scrypt plainPassword, salt, 64, (err, derivedKey) =>
-      if err isnt null and err isnt undefined
+    crypto.scrypt plainPassword, salt, KEY_LENGTH, (err, derivedKey) =>
+      if err?
         return reject err
 
-      resolve Buffer.concat [salt, derivedKey]
+      expandedKey = await hkdf.derive(derivedKey, KEY_LENGTH, salt)
+      resolve Buffer.concat [salt, expandedKey]
 
 module.exports =
+  ###*
+   * Hash the password using a combination of Scrypt and HKDF.
+   *
+   * @param {string} plainPassword - The password to hash.
+   * @returns {Buffer} The hashed password.
+  ###
   hash: (plainPassword) =>
-    Promise.resolve scryptPassword(plainPassword)
+    Promise.resolve scryptPassword plainPassword
 
+  ###*
+   * Verify that the plain password and derivedPassword match.
+   *
+   * @param {string} plainPassword - The plain password.
+   * @param {string|Buffer} derivedPassword - The previously hashed password.
+   * @returns {boolean} true if the password is correct; false otherwise.
+  ###
   match: (plainPassword, derivedPassword) =>
     new Promise (resolve, reject) =>
       if Buffer.isBuffer derivedPassword
@@ -30,7 +48,7 @@ module.exports =
       else # We assume the string is hex encoded
         derivedBuffer = Buffer.from derivedPassword, "hex"
 
-      salt = derivedBuffer.slice 0, 32
-      hash = await scryptPassword(plainPassword, salt)
+      salt = derivedBuffer.slice 0, SALT_SIZE
+      hash = await scryptPassword plainPassword, salt
 
-      resolve Buffer.compare(hash, derivedBuffer) is 0
+      resolve hash.compare(derivedBuffer) is 0
