@@ -16,7 +16,7 @@
   scryptPassword = (plainPassword, salt = null) => {
     return new Promise(async(resolve, reject) => {
       if (salt === null) {
-        salt = (await common.randomString(32));
+        salt = (await common.random(32));
       }
       return crypto.scrypt(plainPassword, salt, 64, (err, derivedKey) => {
         if (err !== null && err !== void 0) {

@@ -11,7 +11,7 @@ common = require "./common"
 scryptPassword = (plainPassword, salt = null) =>
   new Promise (resolve, reject) =>
     if salt is null
-      salt = await common.randomString(32)
+      salt = await common.random(32)
 
     crypto.scrypt plainPassword, salt, 64, (err, derivedKey) =>
       if err isnt null and err isnt undefined
