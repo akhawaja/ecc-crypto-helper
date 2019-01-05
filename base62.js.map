@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "base62.js",
+  "sourceRoot": "",
+  "sources": [
+    "coffeescripts/base62.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA,MAAA,UAAA,EAAA;;EAAA,UAAA,GAAa;;EACb,MAAA,GAAS,OAAA,CAAQ,QAAR,CAAA,CAAkB,UAAlB;;EAET,MAAM,CAAC,OAAP,GAOE,CAAA;;;;;;;IAAA,MAAA,EAAQ,CAAC,MAAD,CAAA,GAAA;aACN,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;QACV,IAAG,CAAC,MAAM,CAAC,QAAP,CAAgB,MAAhB,CAAJ;AACE,iBAAO,MAAA,CAAO,IAAI,SAAJ,CAAc,uCAAd,CAAP,EADT;;eAGA,OAAA,CAAQ,MAAM,CAAC,MAAP,CAAc,MAAd,CAAR;MAJU,CAAZ;IADM,CAAR;;;;;;;IAaA,MAAA,EAAQ,CAAC,IAAD,CAAA,GAAA;aACN,IAAI,OAAJ,CAAY,CAAC,OAAD,EAAU,MAAV,CAAA,GAAA;QACV,IAAG,OAAO,IAAP,KAAiB,QAApB;AACE,iBAAO,MAAA,CAAO,IAAI,SAAJ,CAAc,+BAAd,CAAP,EADT;;eAGA,OAAA,CAAQ,MAAM,CAAC,MAAP,CAAc,IAAd,CAAR;MAJU,CAAZ;IADM;EAbR;AAVF",
+  "sourcesContent": [
+    "CHARACTERS = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\nbase62 = require(\"base-x\")(CHARACTERS)\n\nmodule.exports =\n  ###*\n   * Encode a buffer to Base62.\n   *\n   * @param {Buffer} buffer - The buffer to encode.\n   * @returns {string} The encoded value.\n  ###\n  encode: (buffer) =>\n    new Promise (resolve, reject) =>\n      if !Buffer.isBuffer buffer\n        return reject new TypeError \"Expected buffer to be of type Buffer.\"\n\n      resolve base62.encode buffer\n\n  ###*\n   * Decode a Base62 string to its original buffer.\n   *\n   * @param {string} text - The string to decode.\n   * @returns {Buffer} The decoded buffer.\n  ###\n  decode: (text) =>\n    new Promise (resolve, reject) =>\n      if typeof text isnt \"string\"\n        return reject new TypeError \"Expected text to be a string.\"\n\n      resolve base62.decode text\n"
+  ]
+}
