@@ -18,7 +18,7 @@ module.exports =
 
     new Promise (resolve, reject) =>
       if salt is null or salt is undefined
-        salt = await common.randomString(32)
+        salt = await common.random(32)
 
       try
         resolve hkdf(ikm, size, salt, info, "SHA-512")

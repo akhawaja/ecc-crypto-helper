@@ -22,7 +22,7 @@
       return new Promise(async(resolve, reject) => {
         var err;
         if (salt === null || salt === void 0) {
-          salt = (await common.randomString(32));
+          salt = (await common.random(32));
         }
         try {
           return resolve(hkdf(ikm, size, salt, info, "SHA-512"));
