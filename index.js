@@ -10,6 +10,8 @@
 
   lib.common = require("./common");
 
+  lib.base62 = require("./base62");
+
   lib.base64 = require("./base64");
 
   lib.hmac = require("./hmac");
@@ -17,6 +19,8 @@
   lib.hash = require("./hash");
 
   lib.hkdf = require("./hkdf");
+
+  lib.ksuid = require("./ksuid");
 
   lib.ecc384 = require("./ecc384");
 

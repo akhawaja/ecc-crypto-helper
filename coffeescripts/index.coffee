@@ -7,10 +7,12 @@ object. You can choose to convert the Buffer to another encoding as needed
 lib = {}
 
 lib.common = require "./common"
+lib.base62 = require "./base62"
 lib.base64 = require "./base64"
 lib.hmac = require "./hmac"
 lib.hash = require "./hash"
 lib.hkdf = require "./hkdf"
+lib.ksuid = require "./ksuid"
 lib.ecc384 = require "./ecc384"
 lib.ecc521 = require "./ecc521"
 lib.aesGcm256 = require "./aesgcm256"
