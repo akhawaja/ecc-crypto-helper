@@ -56,7 +56,7 @@ create = (algorithm, secretOrPrivateKey, claims = {}) =>
     currentTime = Math.round((new Date().getTime()) / 1000)
     claims.iat = currentTime
     claims.nbf = currentTime
-    claims.jti = (await common.randomString()).toString("hex")
+    claims.jti = (await common.random()).toString("hex")
 
     try
       jws.createSign({
