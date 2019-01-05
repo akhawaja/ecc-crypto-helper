@@ -1,6 +1,11 @@
 crypto = require "crypto"
 common = require "./common"
 
+ITERATIONS = 10000
+KEY_LENGTH = 32 # AES-GCM-256 requires a 32-bytes key length
+DIGEST = "sha512"
+CIPHER = "aes-256-gcm"
+
 module.exports =
   ###*
    * Encrypt a string using a secret.
@@ -25,13 +30,13 @@ module.exports =
         return reject "secret should be either a String or Buffer. Found '#{typeof secret}'."
 
       salt = await common.random 64
-      iv = await common.random 96 # A 96-bit initialization vector is recommended for AES-GCM-256
+      iv = await common.random 12 # A 12-bytes (96-bit initialization vector) is recommended for AES-GCM-256
 
-      crypto.pbkdf2 masterKey, salt, 10000, 32, "sha512", (err, derivedKey) =>
+      crypto.pbkdf2 masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) =>
         if err?
           return reject err
 
-        cipher = crypto.createCipheriv "aes-256-gcm", derivedKey, iv
+        cipher = crypto.createCipheriv CIPHER, derivedKey, iv
         cipherText = Buffer.concat [cipher.update(text, "utf8"), cipher.final()]
         authTag = cipher.getAuthTag()
         resolve Buffer.concat [salt, iv, authTag, cipherText]
@@ -63,11 +68,11 @@ module.exports =
         return reject "secret should be either a String or Buffer. Found '#{typeof secret}'."
 
       salt = cipherTextBuffer.slice 0, 64
-      iv = cipherTextBuffer.slice 64, 160
-      authTag = cipherTextBuffer.slice 160, 176
-      cipherText = cipherTextBuffer.slice 176
-      crypto.pbkdf2 masterKey, salt, 10000, 32, "sha512", (err, derivedKey) =>
-        cipher = crypto.createDecipheriv "aes-256-gcm", derivedKey, iv
+      iv = cipherTextBuffer.slice 64, 76
+      authTag = cipherTextBuffer.slice 76, 92
+      cipherText = cipherTextBuffer.slice 92
+      crypto.pbkdf2 masterKey, salt, ITERATIONS, KEY_LENGTH, DIGEST, (err, derivedKey) =>
+        cipher = crypto.createDecipheriv CIPHER, derivedKey, iv
         cipher.setAuthTag authTag
         text = cipher.update(cipherText, "binary", "utf8") + cipher.final("utf8")
         resolve text
