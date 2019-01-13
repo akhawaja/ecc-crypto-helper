@@ -1,11 +1,7 @@
 (function() {
-  var CURVE_NAME, HASH_TYPE, common, crypto, ecKeyUtils;
+  var CURVE_NAME, HASH_TYPE, commonEcc;
 
-  crypto = require("crypto");
-
-  ecKeyUtils = require("eckey-utils");
-
-  common = require("./common");
+  commonEcc = require("./common-ecc");
 
   CURVE_NAME = "secp384r1";
 
@@ -22,39 +18,7 @@
      * @returns {Object} The converted certificate.
      */
     convertPemToJwk: (privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) => {
-      return new Promise(async(resolve, reject) => {
-        var err, jwk, kid, params, parsed;
-        if (privateKeyOps.length === 0) {
-          privateKeyOps = ["deriveKey", "sign"];
-        }
-        if (publicKeyOps.length === 0) {
-          publicKeyOps = ["verify"];
-        }
-        try {
-          parsed = ecKeyUtils.parsePem(privateOrPublicPem);
-          params = {};
-          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
-            params.privateKey = parsed.privateKey;
-          }
-          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
-            params.publicKey = parsed.publicKey;
-          }
-          jwk = ecKeyUtils.generateJwk(CURVE_NAME, parsed);
-          kid = ((await common.random())).toString("hex");
-          if (jwk.privateKey !== void 0) {
-            jwk.privateKey.kid = kid;
-            jwk.privateKey.key_ops = privateKeyOps;
-          }
-          if (jwk.publicKey !== void 0) {
-            jwk.publicKey.kid = kid;
-            jwk.publicKey.key_ops = publicKeyOps;
-          }
-          return resolve(jwk);
-        } catch (error) {
-          err = error;
-          return reject(err);
-        }
-      });
+      return Promise.resolve(commonEcc.convertPemToJwk(CURVE_NAME, privateOrPublicPem, privateKeyOps, publicKeyOps));
     },
     /**
      * Convert a JSON Web Key to a PEM certificate.
@@ -63,23 +27,7 @@
      * @returns {Object} The converted certificate.
      */
     convertJwkToPem: (privateOrPublicJwk) => {
-      return new Promise((resolve, reject) => {
-        var err, params, parsed;
-        try {
-          parsed = ecKeyUtils.parseJwk(privateOrPublicJwk);
-          params = {};
-          if (parsed.privateKey !== void 0 && parsed.privateKey !== null) {
-            params.privateKey = parsed.privateKey;
-          }
-          if (parsed.publicKey !== void 0 && parsed.publicKey !== null) {
-            params.publicKey = parsed.publicKey;
-          }
-          return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
-        } catch (error) {
-          err = error;
-          return reject(err);
-        }
-      });
+      return Promise.resolve(commonEcc.convertJwkToPem(CURVE_NAME, privateOrPublicJwk));
     },
     /**
      * Generate an ECDH key pair as a JSON Web Key.
@@ -89,28 +37,7 @@
      * @returns {string} The ECDH key pair.
      */
     generateJwkKeyPair: (privateKeyOps = [], publicKeyOps = []) => {
-      if (privateKeyOps.length === 0) {
-        privateKeyOps = ["deriveKey", "sign"];
-      }
-      if (publicKeyOps.length === 0) {
-        publicKeyOps = ["verify"];
-      }
-      return new Promise(async(resolve, reject) => {
-        var ecdh, jwk, kid, params;
-        ecdh = crypto.createECDH(CURVE_NAME);
-        ecdh.generateKeys();
-        params = {
-          privateKey: ecdh.getPrivateKey(),
-          publicKey: ecdh.getPublicKey()
-        };
-        jwk = ecKeyUtils.generateJwk(CURVE_NAME, params);
-        kid = ((await common.random())).toString("hex");
-        jwk.privateKey.kid = kid;
-        jwk.privateKey.key_ops = privateKeyOps;
-        jwk.publicKey.kid = kid;
-        jwk.publicKey.key_ops = publicKeyOps;
-        return resolve(jwk);
-      });
+      return Promise.resolve(commonEcc.generateJwkKeyPair(CURVE_NAME, privateKeyOps, publicKeyOps));
     },
     /**
      * Generate an ECDH key pair as PEM certificates.
@@ -118,16 +45,7 @@
      * @returns {Object} The PEM certificates.
      */
     generatePemKeyPair: () => {
-      return new Promise((resolve, reject) => {
-        var ecdh, params;
-        ecdh = crypto.createECDH(CURVE_NAME);
-        ecdh.generateKeys();
-        params = {
-          privateKey: ecdh.getPrivateKey(),
-          publicKey: ecdh.getPublicKey()
-        };
-        return resolve(ecKeyUtils.generatePem(CURVE_NAME, params));
-      });
+      return Promise.resolve(commonEcc.generatePemKeyPair(CURVE_NAME));
     },
     /**
      * Sign a payload to prevent it from tamper.
@@ -137,17 +55,7 @@
      * @returns {Buffer} The signature for the payload.
      */
     signPayload: (payload, privateKeyPem) => {
-      return new Promise((resolve, reject) => {
-        var message, signature, signer;
-        if (typeof payload !== "string") {
-          return reject("Payload must be a string.");
-        }
-        signer = crypto.createSign(HASH_TYPE);
-        message = Buffer.from(payload);
-        signer.update(message);
-        signature = signer.sign(privateKeyPem);
-        return resolve(signature);
-      });
+      return Promise.resolve(commonEcc.signPayload(payload, privateKeyPem, HASH_TYPE));
     },
     /**
      * Verify the signature of a given payload.
@@ -157,24 +65,8 @@
      * @param {Object} publicPemKey - The public ECDH key in PEM format.
      * @returns {boolean}
      */
-    verifyPayloadSignature: (payload, signature, publicPemKey) => {
-      return new Promise((resolve, reject) => {
-        var message, signatureBuffer, verifier;
-        if (typeof payload !== "string") {
-          return reject("Payload must be a string.");
-        }
-        verifier = crypto.createVerify(HASH_TYPE);
-        message = Buffer.from(payload);
-        if (Buffer.isBuffer(signature)) {
-          signatureBuffer = signature;
-        } else if (typeof signature === "string") {
-          signatureBuffer = Buffer.from(signature);
-        } else {
-          reject(new Error("Buffer or string expected for signature."));
-        }
-        verifier.update(message);
-        return resolve(verifier.verify(publicPemKey, signatureBuffer));
-      });
+    verifyPayloadSignature: (payload, signature, publicKeyPem) => {
+      return Promise.resolve(commonEcc.verifyPayloadSignature(payload, signature, publicKeyPem, HASH_TYPE));
     },
     /**
      * Compute an ECDH shared secret.
@@ -184,17 +76,7 @@
      * @returns {Buffer}
      */
     computeSecret: (privatePemKey, otherPublicPemKey) => {
-      return new Promise((resolve, reject) => {
-        var ecdh, err;
-        try {
-          ecdh = crypto.createECDH(CURVE_NAME);
-          ecdh.setPrivateKey((ecKeyUtils.parsePem(privatePemKey)).privateKey);
-          return resolve(ecdh.computeSecret((ecKeyUtils.parsePem(otherPublicPemKey)).publicKey));
-        } catch (error) {
-          err = error;
-          return reject(err);
-        }
-      });
+      return Promise.resolve(commonEcc.computeSecret(CURVE_NAME, privatePemKey, otherPublicPemKey));
     }
   };
 
