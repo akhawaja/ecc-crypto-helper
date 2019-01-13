@@ -18,6 +18,17 @@ describe "Specification tests for the helper methods.", () =>
       num1 = await common.randomNumber(low, high)
       expect(num1).is.within(low, high)
 
+    it "Should throw an error when the low and high numbers are the same.", () =>
+      low = 1
+      high = 1
+      common.randomNumber(low, high).catch (err) =>
+        expect(err instanceof Error).to.be.true
+
+    it "Should not generate a random value of size less than zero.", () =>
+      size = -1
+      common.random(size).catch (err) =>
+        expect(err instanceof RangeError).to.be.true
+
   describe "Testing the base62 library.", () =>
     base62 = require "../base62"
 
@@ -51,6 +62,11 @@ describe "Specification tests for the helper methods.", () =>
 
       expect(specimen).to.equal(encoded)
       expect(decoded).to.equal(text)
+
+    it "Should not decode a non-string value.", () =>
+      buffer = Buffer.from "abc"
+      base64.urlDecode(buffer).catch (err) =>
+        expect(err instanceof TypeError).to.be.true
 
   describe "Testing the aesgcm256 library.", () =>
     aes = require "../aesgcm256"

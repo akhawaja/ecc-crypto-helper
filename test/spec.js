@@ -15,12 +15,27 @@
         expect(str1).to.have.lengthOf(16);
         return expect(str2).to.have.lengthOf(16);
       });
-      return it("Should generate a random number between a given range.", async() => {
+      it("Should generate a random number between a given range.", async() => {
         var high, low, num1;
         low = 1;
         high = 20;
         num1 = (await common.randomNumber(low, high));
         return expect(num1).is.within(low, high);
+      });
+      it("Should throw an error when the low and high numbers are the same.", () => {
+        var high, low;
+        low = 1;
+        high = 1;
+        return common.randomNumber(low, high).catch((err) => {
+          return expect(err instanceof Error).to.be.true;
+        });
+      });
+      return it("Should not generate a random value of size less than zero.", () => {
+        var size;
+        size = -1;
+        return common.random(size).catch((err) => {
+          return expect(err instanceof RangeError).to.be.true;
+        });
       });
     });
     describe("Testing the base62 library.", () => {
@@ -52,7 +67,7 @@
     describe("Testing the bas64 library.", () => {
       var base64;
       base64 = require("../base64");
-      return it("Should URL encode then decode a string correctly.", async() => {
+      it("Should URL encode then decode a string correctly.", async() => {
         var decoded, encoded, specimen, text;
         text = "hello world";
         specimen = "aGVsbG8gd29ybGQ";
@@ -60,6 +75,13 @@
         decoded = (await base64.urlDecode(encoded));
         expect(specimen).to.equal(encoded);
         return expect(decoded).to.equal(text);
+      });
+      return it("Should not decode a non-string value.", () => {
+        var buffer;
+        buffer = Buffer.from("abc");
+        return base64.urlDecode(buffer).catch((err) => {
+          return expect(err instanceof TypeError).to.be.true;
+        });
       });
     });
     describe("Testing the aesgcm256 library.", () => {
