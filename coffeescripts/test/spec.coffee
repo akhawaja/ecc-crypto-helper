@@ -18,6 +18,27 @@ describe "Specification tests for the helper methods.", () =>
       num1 = await common.randomNumber(low, high)
       expect(num1).is.within(low, high)
 
+  describe "Testing the base62 library.", () =>
+    base62 = require "../base62"
+
+    it "Should properly encode and decode a value to and from Base62.", () =>
+      buffer = await common.random()
+      encoded = await base62.encode(buffer)
+      decoded = await base62.decode(encoded)
+
+      expect(decoded.compare(buffer)).to.equal(0)
+
+    it "Should throw an error if a Buffer is not supplied when encoding.", () =>
+      value = (await common.random()).toString("hex")
+      base62.encode(value).catch (err) =>
+        expect(err instanceof TypeError).to.be.true
+
+    it "Should throw an error if a string is not supplied when decoding.", () =>
+      value = await common.random()
+      encoded = Buffer.from await base62.encode(value)
+      base62.decode(encoded).catch (err) =>
+        expect(err instanceof TypeError).to.be.true
+
   describe "Testing the bas64 library.", () =>
     base64 = require "../base64"
 
