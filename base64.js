@@ -34,7 +34,7 @@
           }
           return resolve(Buffer.from(encoded, "base64").toString("utf-8"));
         } else {
-          return reject(`Cannot decode non-string value. Found '${typeof encodedText}'.`);
+          return reject(new TypeError(`Cannot decode non-string value. Found '${typeof encodedText}'.`));
         }
       });
     }

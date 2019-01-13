@@ -37,4 +37,4 @@ module.exports =
 
         resolve Buffer.from(encoded, "base64").toString("utf-8")
       else
-        reject "Cannot decode non-string value. Found '#{typeof encodedText}'."
+        reject new TypeError "Cannot decode non-string value. Found '#{typeof encodedText}'."
