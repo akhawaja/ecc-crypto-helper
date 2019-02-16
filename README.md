@@ -2,6 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Coverage Status](https://coveralls.io/repos/github/akhawaja/ecc-crypto-helper/badge.svg?branch=master)](https://coveralls.io/github/akhawaja/ecc-crypto-helper?branch=master)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 **Discalaimer:** This library contains encryption software that is subject to 
 the U.S. Export Administration Regulations. You may not export, re-export, 
