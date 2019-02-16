@@ -1,7 +1,7 @@
 (function() {
-  var EPOCH, MAX_ENCODED_STRING_LENGTH, MAX_LENGTH, PAYLOAD_MAX_LENGTH, TIMESTAMP_MAX_LENGTH, base62, common, crypto, hkdf;
+  var EPOCH, MAX_ENCODED_STRING_LENGTH, MAX_LENGTH, PAYLOAD_MAX_LENGTH, TIMESTAMP_MAX_LENGTH, common, crypto, hkdf, ksuid;
 
-  EPOCH = 1546300800;
+  EPOCH = 14e11;
 
   MAX_ENCODED_STRING_LENGTH = 27;
 
@@ -11,7 +11,7 @@
 
   MAX_LENGTH = TIMESTAMP_MAX_LENGTH + PAYLOAD_MAX_LENGTH;
 
-  base62 = require("./base62");
+  ksuid = require("ksuid");
 
   crypto = require("crypto");
 
@@ -27,24 +27,17 @@
      * @returns {string} The KSUID value.
      */
     create: (unixTimestamp = null) => {
-      return new Promise(async(resolve, reject) => {
-        var buffer, contents, ikm, payload, timestamp, utc;
+      return new Promise(async(resolve) => {
+        var identifier, ikm, payload, utc;
         if (unixTimestamp === null) {
           utc = (await common.utcTimestamp());
         } else {
           utc = unixTimestamp;
         }
-        ikm = (await common.random());
+        ikm = (await common.random(32));
         payload = (await hkdf.derive(ikm, PAYLOAD_MAX_LENGTH));
-        timestamp = Buffer.allocUnsafe(TIMESTAMP_MAX_LENGTH);
-        timestamp.writeInt32BE(utc, 0);
-        buffer = Buffer.concat([timestamp, payload], MAX_LENGTH);
-        contents = (await base62.encode(buffer));
-        if (contents.length === MAX_ENCODED_STRING_LENGTH) {
-          return resolve(contents);
-        } else {
-          return resolve(contents.slice(0, MAX_ENCODED_STRING_LENGTH));
-        }
+        identifier = ksuid.fromParts(utc * 1000, payload);
+        return resolve(identifier.string);
       });
     },
     /**
@@ -54,20 +47,17 @@
      * @returns {Object} The component parts of the KSUID.
      */
     parse: (ksuidValue) => {
-      return new Promise(async(resolve, reject) => {
-        var buffer, payloadBuffer, timestampBuffer, utc;
+      return new Promise((resolve, reject) => {
+        var parsedIdentifier;
         if (ksuidValue.length !== MAX_ENCODED_STRING_LENGTH) {
           reject(new Error("ksuidValue does not appear to be a KSUID."));
         }
-        buffer = (await base62.decode(ksuidValue));
-        timestampBuffer = buffer.slice(0, TIMESTAMP_MAX_LENGTH);
-        payloadBuffer = buffer.slice(TIMESTAMP_MAX_LENGTH, PAYLOAD_MAX_LENGTH);
-        utc = timestampBuffer.readInt32BE(0);
+        parsedIdentifier = ksuid.parse(ksuidValue);
         return resolve({
           ksuid: ksuidValue,
-          time: new Date(utc * 1000),
-          timestamp: utc,
-          payload: payloadBuffer
+          time: parsedIdentifier.date,
+          timestamp: parsedIdentifier.timestamp,
+          payload: parsedIdentifier.payload
         });
       });
     }

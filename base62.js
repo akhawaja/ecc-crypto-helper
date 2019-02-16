@@ -1,9 +1,7 @@
 (function() {
-  var CHARACTERS, base62;
+  var base62;
 
-  CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-  base62 = require("base-x")(CHARACTERS);
+  base62 = require("ksuid/base62");
 
   module.exports = {
     /**
@@ -29,7 +27,7 @@
     decode: (text) => {
       return new Promise((resolve, reject) => {
         if (typeof text !== "string") {
-          return reject(new TypeError("Expected text to be a string."));
+          return reject(new TypeError(`Expected text to be a string. Received ${text}.`));
         }
         return resolve(base62.decode(text));
       });

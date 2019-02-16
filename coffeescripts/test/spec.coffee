@@ -33,7 +33,7 @@ describe "Specification tests for the helper methods.", () =>
     base62 = require "../base62"
 
     it "Should properly encode and decode a value to and from Base62.", () =>
-      buffer = await common.random()
+      buffer = await common.random(20)
       encoded = await base62.encode(buffer)
       decoded = await base62.decode(encoded)
 
@@ -49,6 +49,18 @@ describe "Specification tests for the helper methods.", () =>
       encoded = Buffer.from await base62.encode(value)
       base62.decode(encoded).catch (err) =>
         expect(err instanceof TypeError).to.be.true
+
+    it "Should generate the same value as the ksuid/base62", () =>
+      base62ext = require "ksuid/base62"
+      common = require "../common"
+      buffer = await common.random()
+      encoded1 = await base62.encode(buffer)
+      encoded2 = base62ext.encode(buffer)
+      decoded1 = await base62.decode(encoded1)
+      decoded2 = base62ext.decode(encoded2)
+
+      expect(encoded1).to.equal(encoded2)
+      expect(Buffer.compare(decoded1, decoded2)).to.equal(0)
 
   describe "Testing the bas64 library.", () =>
     base64 = require "../base64"
@@ -303,7 +315,16 @@ describe "Specification tests for the helper methods.", () =>
       timestamp = await common.utcTimestamp()
       ksuidValue = await ksuid.create timestamp
       componentParts = await ksuid.parse ksuidValue
-      expect(componentParts.timestamp).to.equal(timestamp)
+      expect(componentParts.time.getTime()).to.equal((new Date(timestamp * 1e3)).getTime())
+      expect(componentParts).to.have.property("ksuid")
+      expect(componentParts).to.have.property("time")
+      expect(componentParts).to.have.property("payload")
+
+    it "Should have the same timestamp value as supplied.", () =>
+      timestamp = 1549735200
+      ksuidValue = await ksuid.create timestamp
+      componentParts = await ksuid.parse ksuidValue
+      expect(componentParts.time.getTime()).to.equal((new Date(timestamp * 1e3)).getTime())
       expect(componentParts).to.have.property("ksuid")
       expect(componentParts).to.have.property("time")
       expect(componentParts).to.have.property("payload")
