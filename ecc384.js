@@ -11,7 +11,7 @@ module.exports = {
    * @param {string|Buffer} privateOrPublicPem - The private or public PEM key.
    * @param {Array} privateKeyOps - The operations intended for the private key.
    * @param {Array} publicKeyOps - The operations intended for the public key.
-   * @returns {Promise} The converted certificate.
+   * @returns {Promise<Object>} The converted certificate.
    */
   convertPemToJwk: (privateOrPublicPem, privateKeyOps = [],
     publicKeyOps = []) => {
@@ -23,7 +23,7 @@ module.exports = {
    * Convert a JSON Web Key to a PEM certificate.
    *
    * @param {string|Buffer} privateOrPublicJwk - The private or public JSON Web Key.
-   * @returns {Promise} The converted certificate.
+   * @returns {Promise<Object>} The converted certificate.
    */
   convertJwkToPem: (privateOrPublicJwk) => {
     return commonEcc.convertJwkToPem(CURVE_NAME, privateOrPublicJwk)
@@ -34,7 +34,7 @@ module.exports = {
    *
    * @param {Array} privateKeyOps - The operations intended for the private key.
    * @param {Array} publicKeyOps - The operations intended for the public key.
-   * @returns {Promise} The ECDH key pair.
+   * @returns {Promise<Object>} The ECDH key pair.
    */
   generateJwkKeyPair: (privateKeyOps = [], publicKeyOps = []) => {
     return commonEcc.generateJwkKeyPair(CURVE_NAME, privateKeyOps, publicKeyOps)
@@ -43,7 +43,7 @@ module.exports = {
   /**
    * Generate an ECDH key pair as PEM certificates.
    *
-   * @returns {Promise} The PEM certificates.
+   * @returns {Promise<Object>} The PEM certificates.
    */
   generatePemKeyPair: () => {
     return commonEcc.generatePemKeyPair(CURVE_NAME)
@@ -54,7 +54,7 @@ module.exports = {
    *
    * @param {string} payload - The payload to sign.
    * @param {string} privateKeyPem - The private key in PEM format.
-   * @returns {Promise} The signature for the payload.
+   * @returns {Promise<string>} The signature for the payload.
    */
   signPayload: (payload, privateKeyPem) => {
     return commonEcc.signPayload(payload, privateKeyPem, HASH_TYPE)
@@ -66,7 +66,7 @@ module.exports = {
    * @param {string} payload - The payload against which the signature will be checked.
    * @param {string|Buffer} signature - The signature of the payload.
    * @param {Object} publicKeyPem - The public ECDH key in PEM format.
-   * @returns {Promise}
+   * @returns {Promise<boolean>}
    */
   verifyPayloadSignature: (payload, signature, publicKeyPem) => {
     return commonEcc.verifyPayloadSignature(
@@ -78,7 +78,7 @@ module.exports = {
    *
    * @param {Object} privatePemKey - The private ECDH key in PEM format.
    * @param {Object} otherPublicPemKey - The other public ECDH key in PEM format.
-   * @returns {Promise}
+   * @returns {Promise<string>}
    */
   computeSecret: (privatePemKey, otherPublicPemKey) => {
     return commonEcc.computeSecret(CURVE_NAME, privatePemKey, otherPublicPemKey)

@@ -14,8 +14,12 @@ lib.hkdf = require('./hkdf')
 lib.ksuid = require('./ksuid')
 lib.ecc384 = require('./ecc384')
 lib.ecc521 = require('./ecc521')
+lib.aesCbc128 = require('./aescbc128')
+lib.aesCbc256 = require('./aescbc256')
+lib.aesGcm128 = require('./aesgcm128')
 lib.aesGcm256 = require('./aesgcm256')
 lib.password = require('./password')
 lib.jwt = require('./jwt')
+lib.rsa = require('./rsa')
 
 module.exports = lib

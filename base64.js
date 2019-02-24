@@ -3,7 +3,7 @@ module.exports = {
    * Base64 URL encode a given text.
    *
    * @param {string} text - The text to encode.
-   * @returns {Promise} The encoded text.
+   * @returns {Promise<string>} The encoded text.
    */
   urlEncode: (text) => {
     return new Promise((resolve, reject) => {
@@ -24,7 +24,7 @@ module.exports = {
    * Base64 URL decode a given text.
    *
    * @param {string} encodedText - The Base64 encoded text.
-   * @returns {Promise} The decoded text.
+   * @returns {Promise<string>} The decoded text.
    */
   urlDecode: (encodedText) => {
     return new Promise((resolve, reject) => {

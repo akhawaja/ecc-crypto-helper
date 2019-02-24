@@ -1,6 +1,6 @@
 const commonEcc = require('./common-ecc')
-const CURVE_NAME = 'secp521r1'
-const HASH_TYPE = 'sha512'
+const CURVE_NAME = 'prime256v1'
+const HASH_TYPE = 'sha256'
 
 module.exports = {
   curveName: CURVE_NAME,

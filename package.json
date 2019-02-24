@@ -23,9 +23,13 @@
     "JSON Web Tokens",
     "crypto",
     "ecc",
+    "jwe",
     "jwt",
+    "jws",
     "ksuid",
+    "hash",
     "hkdf",
+    "rsa",
     "password hash"
   ],
   "private": false,

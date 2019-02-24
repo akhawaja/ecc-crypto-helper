@@ -5,7 +5,7 @@ module.exports = {
    * Compute a SHA-256 hash of a given string.
    *
    * @param {string} text - The text to calculate into a hash.
-   * @returns {Promise}
+   * @returns {Promise<Buffer>}
    */
   sha256: (text) => {
     return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ module.exports = {
    * Compute a SHA-384 hash of a given string.
    *
    * @param {string} text - The text to calculate into a hash.
-   * @returns {Promise}
+   * @returns {Promise<Buffer>}
    */
   sha384: (text) => {
     return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ module.exports = {
    * Compute a SHA-512 hash of a given string.
    *
    * @param {string} text - The text to calculate into a hash.
-   * @returns {Promise}
+   * @returns {Promise<Buffer>}
    */
   sha512: (text) => {
     return new Promise((resolve, reject) => {
