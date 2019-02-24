@@ -127,6 +127,15 @@ const verify = (algorithm, secretOrPublicKey, jsonWebToken) => {
 module.exports = {
   decode: decode,
 
+  es256: {
+    create: (privateKey, claims) => {
+      return create('ES256', privateKey, claims)
+    },
+    verify: (publicKey, jsonWebToken) => {
+      return verify('ES256', publicKey, jsonWebToken)
+    }
+  },
+
   es384: {
     create: (privateKey, claims) => {
       return create('ES384', privateKey, claims)
@@ -142,6 +151,15 @@ module.exports = {
     },
     verify: (publicKey, jsonWebToken) => {
       return verify('ES512', publicKey, jsonWebToken)
+    }
+  },
+
+  hs256: {
+    create: (secret, claims) => {
+      return create('HS256', secret, claims)
+    },
+    verify: (secret, jsonWebToken) => {
+      return verify('HS256', secret, jsonWebToken)
     }
   },
 

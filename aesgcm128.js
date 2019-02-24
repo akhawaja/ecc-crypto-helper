@@ -1,5 +1,5 @@
 const commonAesGcm = require('./common-aes-gcm')
-const CIPHER = 'aes-256-gcm'
+const CIPHER = 'aes-128-gcm'
 
 module.exports = {
   /**
