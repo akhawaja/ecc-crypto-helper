@@ -38,6 +38,15 @@ describe('Specification tests for the helper methods.', () => {
           expect(err instanceof RangeError).to.equal(true)
         })
       })
+
+    it('Should calculate UTC Date object,', async () => {
+      const utc = await common.utcDate()
+      const now = new Date()
+      let utcTime = utc.toTimeString().split(' ')[0]
+      let nowTimeInUTC = now.toUTCString().split(' ')
+
+      expect(utcTime).to.equal(nowTimeInUTC[nowTimeInUTC.length - 2])
+    })
   })
 
   describe('Testing the base62 library.', () => {
@@ -109,14 +118,88 @@ describe('Specification tests for the helper methods.', () => {
     })
   })
 
+  describe('Testing the aescbc128 library.', () => {
+    const aes = require('../aescbc128')
+
+    it('Should encrypt and decrypt a string correctly.', async () => {
+      const password = 'This is a secret'
+      const text = 'Nobody should know what this message says.'
+      const cipherText = await aes.encrypt(text, password)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv)
+
+      expect(decipherText).to.equal(text)
+    })
+  })
+
+  describe('Testing the aescbc192 library.', () => {
+    const aes = require('../aescbc192')
+
+    it('Should encrypt and decrypt a string correctly.', async () => {
+      const password = 'This is a secret'
+      const text = 'Nobody should know what this message says.'
+      const cipherText = await aes.encrypt(text, password)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv)
+
+      expect(decipherText).to.equal(text)
+    })
+  })
+
+  describe('Testing the aescbc256 library.', () => {
+    const aes = require('../aescbc256')
+
+    it('Should encrypt and decrypt a string correctly.', async () => {
+      const password = 'This is a secret'
+      const text = 'Nobody should know what this message says.'
+      const cipherText = await aes.encrypt(text, password)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv)
+
+      expect(decipherText).to.equal(text)
+    })
+  })
+
+  describe('Testing the aesgcm128 library.', () => {
+    const aes = require('../aesgcm128')
+
+    it('Should encrypt and decrypt a string correctly.', async () => {
+      const password = 'This is a secret'
+      const text = 'Nobody should know what this message says.'
+      const aad = Buffer.from('name:unit-test')
+      const cipherText = await aes.encrypt(text, password, aad)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv, cipherText.authTag, aad)
+
+      expect(decipherText).to.equal(text)
+    })
+  })
+
+  describe('Testing the aesgcm192 library.', () => {
+    const aes = require('../aesgcm192')
+
+    it('Should encrypt and decrypt a string correctly.', async () => {
+      const password = 'This is a secret'
+      const text = 'Nobody should know what this message says.'
+      const aad = Buffer.from('name:unit-test')
+      const cipherText = await aes.encrypt(text, password, aad)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv, cipherText.authTag, aad)
+
+      expect(decipherText).to.equal(text)
+    })
+  })
+
   describe('Testing the aesgcm256 library.', () => {
     const aes = require('../aesgcm256')
 
     it('Should encrypt and decrypt a string correctly.', async () => {
       const password = 'This is a secret'
       const text = 'Nobody should know what this message says.'
-      const cipherText = await aes.encrypt(text, password)
-      const decipherText = await aes.decrypt(cipherText, password)
+      const aad = Buffer.from('name:unit-test')
+      const cipherText = await aes.encrypt(text, password, aad)
+      const decipherText = await aes.decrypt(
+        cipherText.encrypted, password, cipherText.iv, cipherText.authTag, aad)
 
       expect(decipherText).to.equal(text)
     })
@@ -242,14 +325,24 @@ describe('Specification tests for the helper methods.', () => {
     })
   })
 
-  describe('Testing the jwt, ecc384, and ecc521 libraries in concert.', () => {
+  describe('Testing the jwt, ecc256, ecc384, and ecc521 libraries.', () => {
     const jwt = require('../jwt')
+    const ecc256 = require('../ecc256')
     const ecc384 = require('../ecc384')
     const ecc521 = require('../ecc521')
     const sharedSecret = 'This is a secret'
     const claims = {
       username: 'unit-test'
     }
+
+    it('Should generate a valid HS256 JSON Web Token.', async () => {
+      const webToken = await jwt.hs256.create(sharedSecret, claims)
+      const verify = await jwt.hs256.verify(sharedSecret, webToken)
+      const decoded = await jwt.decode(webToken)
+
+      expect(decoded.payload.username).to.equal(claims.username)
+      expect(verify).to.equal(true)
+    })
 
     it('Should generate a valid HS384 JSON Web Token.', async () => {
       const webToken = await jwt.hs384.create(sharedSecret, claims)
@@ -263,6 +356,16 @@ describe('Specification tests for the helper methods.', () => {
     it('Should generate a valid HS512 JSON Web Token.', async () => {
       const webToken = await jwt.hs512.create(sharedSecret, claims)
       const verify = await jwt.hs512.verify(sharedSecret, webToken)
+      const decoded = await jwt.decode(webToken)
+
+      expect(decoded.payload.username).to.equal(claims.username)
+      expect(verify).to.equal(true)
+    })
+
+    it('Should generate a valid ES256 JSON Web Token.', async () => {
+      const pems = await ecc256.generatePemKeyPair()
+      const webToken = await jwt.es256.create(pems.privateKey, claims)
+      const verify = await jwt.es256.verify(pems.publicKey, webToken)
       const decoded = await jwt.decode(webToken)
 
       expect(decoded.payload.username).to.equal(claims.username)
@@ -377,7 +480,7 @@ describe('Specification tests for the helper methods.', () => {
     it('Should generate a 27-character KSUID.', async () => {
       const ksuidValue = await ksuid.create()
 
-      return expect(ksuidValue).to.have.lengthOf(27)
+      expect(ksuidValue).to.have.lengthOf(27)
     })
 
     it('Should have the expected timestamp value.', async () => {
@@ -426,7 +529,43 @@ describe('Specification tests for the helper methods.', () => {
           }
         })
 
-        return expect(sorted).to.equal(bucket)
+        expect(sorted).to.equal(bucket)
       })
+  })
+
+  describe('Test the RSA library.', () => {
+    const rsa = require('../rsa')
+    const payload = 'This is a super secret message.'
+
+    it('Should encrypt and decrypt using RSA 2048 key pair', async () => {
+      const keyPair = await rsa.generateKeyPair(2048)
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
+
+      expect(payload).to.equal(plain.toString())
+    })
+
+    it('Should sign and verify using a RSA 2048 key pair', async () => {
+      const keyPair = await rsa.generateKeyPair(2048)
+      let signature = await rsa.signPayload(payload, keyPair.privateKey)
+      let verified = await rsa.verifyPayloadSignature(payload, signature, keyPair.publicKey)
+
+      expect(verified).to.equal(true)
+    })
+
+    it('Should encrypt and decrypt using RSA 4096 key pair', async () => {
+      const keyPair = await rsa.generateKeyPair(4096)
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
+      expect(payload).to.equal(plain.toString())
+    })
+
+    it('Should sign and verify using a RSA 4096 key pair', async () => {
+      const keyPair = await rsa.generateKeyPair(4096)
+      let signature = await rsa.signPayload(payload, keyPair.privateKey)
+      let verified = await rsa.verifyPayloadSignature(payload, signature, keyPair.publicKey)
+
+      expect(verified).to.equal(true)
+    })
   })
 })

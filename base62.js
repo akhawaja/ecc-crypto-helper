@@ -5,7 +5,7 @@ module.exports = {
    * Encode a buffer to Base62.
    *
    * @param {Buffer} buffer - The buffer to encode.
-   * @returns {Promise} The encoded value.
+   * @returns {Promise<string>} The encoded value.
    */
   encode: (buffer) => {
     return new Promise((resolve, reject) => {
@@ -20,7 +20,7 @@ module.exports = {
    * Decode a Base62 string to its original buffer.
    *
    * @param {string} text - The string to decode.
-   * @returns {Promise} The decoded buffer.
+   * @returns {Promise<Buffer>} The decoded buffer.
    */
   decode: (text) => {
     return new Promise((resolve, reject) => {

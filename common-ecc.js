@@ -28,7 +28,7 @@ module.exports = {
    * @param {string|Buffer} privateOrPublicPem - The private or public PEM key.
    * @param {Array} privateKeyOps - The operations intended for the private key.
    * @param {Array} publicKeyOps - The operations intended for the public key.
-   * @returns {Promise} The converted certificate.
+   * @returns {Promise<Object>} The converted certificate.
    */
   convertPemToJwk: (curveName, privateOrPublicPem, privateKeyOps = [],
     publicKeyOps = []) => {
@@ -78,7 +78,7 @@ module.exports = {
    *
    * @param {string} curveName - The type of ECC curve.
    * @param {string|Buffer} privateOrPublicJwk - The private or public JSON Web Key.
-   * @returns {Promise} The converted certificate.
+   * @returns {Promise<Object>} The converted certificate.
    */
   convertJwkToPem: (curveName, privateOrPublicJwk) => {
     return new Promise((resolve, reject) => {
@@ -107,7 +107,7 @@ module.exports = {
    * @param {string} curveName - The type of ECC curve.
    * @param {Array} privateKeyOps - The operations intended for the private key.
    * @param {Array} publicKeyOps - The operations intended for the public key.
-   * @returns {Promise} The ECDH key pair.
+   * @returns {Promise<Object>} The ECDH key pair.
    */
   generateJwkKeyPair: (curveName, privateKeyOps = [], publicKeyOps = []) => {
     if (privateKeyOps.length === 0) {
@@ -143,7 +143,7 @@ module.exports = {
    * Generate an ECDH key pair as PEM certificates.
    *
    * @param {string} curveName - The type of ECC curve.
-   * @returns {Promise} The PEM certificates.
+   * @returns {Promise<Object>} The PEM certificates.
    */
   generatePemKeyPair: (curveName) => {
     return new Promise((resolve, reject) => {
@@ -165,7 +165,7 @@ module.exports = {
    * @param {string} payload - The payload to sign.
    * @param {string} privateKeyPem - The private key in PEM format.
    * @param {string} hashType - The type of SHA2 digest to use. Defaults to SHA-256.
-   * @returns {Promise} The signature for the payload.
+   * @returns {Promise<Buffer>} The signature for the payload.
    */
   signPayload: (payload, privateKeyPem, hashType = 'sha256') => {
     return new Promise((resolve, reject) => {
@@ -188,7 +188,7 @@ module.exports = {
    * @param {string|Buffer} signature - The signature of the payload.
    * @param {Object} publicKeyPem - The public ECDH key in PEM format.
    * @param {string} hashType - The type of SHA2 digest to use. Defaults to SHA-256.
-   * @returns {Promise}
+   * @returns {Promise<boolean>}
    */
   verifyPayloadSignature: (payload, signature, publicKeyPem,
     hashType = 'sha256') => {
@@ -211,7 +211,7 @@ module.exports = {
    * @param {string} curveName - The type of ECC curve.
    * @param {Object} privatePemKey - The private ECDH key in PEM format.
    * @param {Object} otherPublicPemKey - The other public ECDH key in PEM format.
-   * @returns {Promise}
+   * @returns {Promise<string>}
    */
   computeSecret: (curveName, privatePemKey, otherPublicPemKey) => {
     return new Promise((resolve, reject) => {

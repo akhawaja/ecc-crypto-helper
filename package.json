@@ -1,7 +1,7 @@
 {
   "name": "ecc-crypto-helper",
-  "version": "1.3.0",
-  "description": "A Node.js elliptic curve crypto helper library.",
+  "version": "1.4.0",
+  "description": "A Node.js elliptic curve and RSA crypto helper library.",
   "main": "index.js",
   "author": {
     "name": "Amir Khawaja",
@@ -23,9 +23,13 @@
     "JSON Web Tokens",
     "crypto",
     "ecc",
+    "jwe",
     "jwt",
+    "jws",
     "ksuid",
+    "hash",
     "hkdf",
+    "rsa",
     "password hash"
   ],
   "private": false,

@@ -4,8 +4,8 @@ module.exports = {
   /**
    * Generate a random value.
    *
-   * @param {number} size - The length of the random value to generate.
-   * @returns {Promise} The random value.
+   * @param {number} [size=16] - The length of the random value to generate.
+   * @returns {Promise<Buffer>} The random value.
    */
   random: (size = 16) => {
     return new Promise((resolve, reject) => {
@@ -24,14 +24,14 @@ module.exports = {
   /**
    * Generate a random number between a range.
    *
-   * @param {number} low - The starting range.
-   * @param {number} high - The ending range.
-   * @returns {Promise} The random number.
+   * @param {number} [low=1 - The starting range.
+   * @param {number} [high=100000] - The ending range.
+   * @returns {Promise<number>} The random number.
    */
   randomNumber: (low = 1, high = 100000) => {
     return new Promise((resolve, reject) => {
-      if (low === high) {
-        reject(new Error('low number must be greater than high number.'))
+      if (low >= high) {
+        reject(new Error('low number must be less than high number.'))
       }
 
       return resolve(Math.floor(Math.random() * (high - low + 1) + low))
@@ -41,7 +41,7 @@ module.exports = {
   /**
    * Generate a UTC UNIX timestamp in seconds.
    *
-   * @returns {Promise} The UTC time as a UNIX timestamp.
+   * @returns {Promise<number>} The UTC time as a UNIX timestamp.
    */
   utcTimestamp: () => {
     return new Promise((resolve, reject) => {
@@ -49,6 +49,19 @@ module.exports = {
 
       return resolve(Math.floor(
         (now.getTime() + now.getTimezoneOffset() * (60 * 1000)) / 1000))
+    })
+  },
+
+  /**
+   * Get a Date object in the UTC timezone.
+   *
+   * @returns {Promise<Date>}
+   */
+  utcDate: () => {
+    return new Promise((resolve, reject) => {
+      const now = new Date()
+      return resolve(
+        new Date(now.getTime() + (now.getTimezoneOffset() * 60000)))
     })
   }
 }
