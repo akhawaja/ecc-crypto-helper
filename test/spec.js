@@ -392,6 +392,18 @@ describe('Specification tests for the helper methods.', () => {
       expect(verify).to.equal(true)
     })
 
+    it('Should be able to compute a secret using ECDHE and Sha256.',
+      async () => {
+        const bobKeyPair = await ecc256.generatePemKeyPair()
+        const aliceKeyPair = await ecc256.generatePemKeyPair()
+        const secret1 = await ecc256.computeSecret(bobKeyPair.privateKey,
+          aliceKeyPair.publicKey)
+        const secret2 = await ecc256.computeSecret(aliceKeyPair.privateKey,
+          bobKeyPair.publicKey)
+
+        expect(Buffer.compare(secret1, secret2)).to.equal(0)
+      })
+
     it('Should be able to compute a secret using ECDHE and Sha384.',
       async () => {
         const bobKeyPair = await ecc384.generatePemKeyPair()
@@ -416,6 +428,17 @@ describe('Specification tests for the helper methods.', () => {
         expect(Buffer.compare(secret1, secret2)).to.equal(0)
       })
 
+    it('Should sign and verify a message signed with a P-256 key.',
+      async () => {
+        const message = 'This is a message that was not tampered with.'
+        const keyPair = await ecc256.generatePemKeyPair()
+        const signature = await ecc256.signPayload(message, keyPair.privateKey)
+        const verify = await ecc256.verifyPayloadSignature(message, signature,
+          keyPair.publicKey)
+
+        expect(verify).to.equal(true)
+      })
+
     it('Should sign and verify a message signed with a P-384 key.',
       async () => {
         const message = 'This is a message that was not tampered with.'
@@ -436,6 +459,23 @@ describe('Specification tests for the helper methods.', () => {
           keyPair.publicKey)
 
         expect(verify).to.equal(true)
+      })
+
+    it('Should be able to convert keys between PEM and JWK when using ecc256.',
+      async () => {
+        const keyPair = await ecc256.generatePemKeyPair()
+        const jwk = await ecc256.convertPemToJwk(keyPair.privateKey)
+        const pems = await ecc256.convertJwkToPem(jwk.privateKey)
+        const jwk2 = await ecc256.convertPemToJwk(pems.privateKey)
+        const pems2 = await ecc256.convertJwkToPem(jwk2.privateKey)
+
+        expect(jwk.privateKey.x).to.equal(jwk2.privateKey.x)
+        expect(jwk.privateKey.y).to.equal(jwk2.privateKey.y)
+        expect(jwk.privateKey.d).to.equal(jwk2.privateKey.d)
+        expect(jwk.publicKey.x).to.equal(jwk2.publicKey.x)
+        expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
+        expect(pems.privateKey).to.equal(pems2.privateKey)
+        expect(pems.publicKey).to.equal(pems2.publicKey)
       })
 
     it('Should be able to convert keys between PEM and JWK when using ecc384.',
