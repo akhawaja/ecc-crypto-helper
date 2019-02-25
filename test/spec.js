@@ -594,6 +594,7 @@ describe('Specification tests for the helper methods.', () => {
     })
 
     it('Should encrypt and decrypt using RSA 4096 key pair', async () => {
+      this.timeout = 10000
       const keyPair = await rsa.generateKeyPair(4096)
       let ciphertext = await rsa.encrypt(keyPair.publicKey, payload)
       let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
