@@ -18,10 +18,17 @@ the `Features` section for a quick description of what is available.
 
 ## Features
 
+- aescbc128: Encrypt and decrypt using AES-CBC-128 scheme.
+- aescbc192: Encrypt and decrypt using AES-CBC-192 scheme.
+- aescbc256: Encrypt and decrypt using AES-CBC-256 scheme.
+- aesgcm128: Encrypt and decrypt using AES-GCM-128 scheme.
+- aesgcm192: Encrypt and decrypt using AES-GCM-192 scheme.
 - aesgcm256: Encrypt and decrypt using AES-GCM-256 scheme.
 - base62: Base62 Encode/decode functions.
 - base64: Base64 URL encode/decode functions.
 - common: Random string, numbers, and UTC timestamp.
+- ecc256: ECC with P-256 functions. Also contains functions to sign and verify
+          the signatures, and convert PEM certificates to JWK.
 - ecc384: ECC with P-384 functions. Also contains functions to sign and verify
           the signatures, and convert PEM certificates to JWK.
 - ecc521: ECC with P-521 functions. Also contains functions to sign and verify
@@ -35,6 +42,8 @@ the `Features` section for a quick description of what is available.
          identifiers. You can use this instead of a UUID.
 - password: Password hash and match functions. Uses Scrypt + HKDF for password 
             hashing.
+- rsa: Generate key pairs, perform public key encryption and private key 
+       decryption, sign and verify using private and public keys respectively.
 
 ## Example Usage
 
