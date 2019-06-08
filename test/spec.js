@@ -4,6 +4,8 @@ describe('Specification tests for the helper methods.', () => {
   const common = require('../common')
 
   describe('Testing the common library.', () => {
+    const debugCommonLib = require('debug')('spec:common_library')
+
     it('Should generate a random string.', async () => {
       const str1 = await common.random()
       const str2 = await common.random()
@@ -11,6 +13,9 @@ describe('Specification tests for the helper methods.', () => {
       expect(str1.toString('hex')).to.not.equal(str2.toString('hex'))
       expect(str1).to.have.lengthOf(16)
       expect(str2).to.have.lengthOf(16)
+
+      debugCommonLib(`Random String1: ${str1.toString('hex')}`)
+      debugCommonLib(`Random String2: ${str2.toString('hex')}`)
     })
 
     it('Should generate a random number between a given range.', async () => {
@@ -19,6 +24,7 @@ describe('Specification tests for the helper methods.', () => {
       const num1 = await common.randomNumber(low, high)
 
       expect(num1).is.within(low, high)
+      debugCommonLib(`Random number between ${low} and ${high}: ${num1}`)
     })
 
     it('Should throw an error when the low and high numbers are the same.',
@@ -311,6 +317,8 @@ describe('Specification tests for the helper methods.', () => {
 
   describe('Testing the password library.', () => {
     const password = require('../password')
+    const debugPassword = require('debug')('spec:password')
+
     /*
     This test is the slowest. Most likely it is because scrypt is a slow
     password hashing algorithm in Node.js.
@@ -322,6 +330,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(hashedPassword).to.have.lengthOf(128)
       expect(match).to.equal(true)
+      debugPassword(`Password hash: ${hashedPassword.toString('hex')}`)
     })
   })
 
@@ -334,6 +343,7 @@ describe('Specification tests for the helper methods.', () => {
     const claims = {
       username: 'unit-test'
     }
+    const debugJWT = require('debug')('spec:jose')
 
     it('Should generate a valid HS256 JSON Web Token.', async () => {
       const webToken = await jwt.hs256.create(sharedSecret, claims)
@@ -342,6 +352,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`HS256 Web Token: ${webToken}`)
     })
 
     it('Should generate a valid HS384 JSON Web Token.', async () => {
@@ -351,6 +362,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`HS384 Web Token: ${webToken}`)
     })
 
     it('Should generate a valid HS512 JSON Web Token.', async () => {
@@ -360,6 +372,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`HS512 Web Token: ${webToken}`)
     })
 
     it('Should generate a valid ES256 JSON Web Token.', async () => {
@@ -370,6 +383,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`ES256 Web Token: ${webToken}`)
     })
 
     it('Should generate a valid ES384 JSON Web Token.', async () => {
@@ -380,6 +394,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`ES384 Web Token: ${webToken}`)
     })
 
     it('Should generate a valid ES512 JSON Web Token.', async () => {
@@ -390,6 +405,7 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(decoded.payload.username).to.equal(claims.username)
       expect(verify).to.equal(true)
+      debugJWT(`ES512 Web Token: ${webToken}`)
     })
 
     it('Should be able to compute a secret using ECDHE and Sha256.',
@@ -402,6 +418,7 @@ describe('Specification tests for the helper methods.', () => {
           bobKeyPair.publicKey)
 
         expect(Buffer.compare(secret1, secret2)).to.equal(0)
+        debugJWT(`Compute shared secret P-256: ${secret1.toString('hex')}`)
       })
 
     it('Should be able to compute a secret using ECDHE and Sha384.',
@@ -414,6 +431,7 @@ describe('Specification tests for the helper methods.', () => {
           bobKeyPair.publicKey)
 
         expect(Buffer.compare(secret1, secret2)).to.equal(0)
+        debugJWT(`Compute shared secret P-384: ${secret1.toString('hex')}`)
       })
 
     it('Should be able to compute a secret using ECDHE and Sha512.',
@@ -426,6 +444,7 @@ describe('Specification tests for the helper methods.', () => {
           bobKeyPair.publicKey)
 
         expect(Buffer.compare(secret1, secret2)).to.equal(0)
+        debugJWT(`Compute shared secret P-521: ${secret1.toString('hex')}`)
       })
 
     it('Should sign and verify a message signed with a P-256 key.',
@@ -476,6 +495,8 @@ describe('Specification tests for the helper methods.', () => {
         expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
         expect(pems.privateKey).to.equal(pems2.privateKey)
         expect(pems.publicKey).to.equal(pems2.publicKey)
+        debugJWT(`JWK P-256: ${JSON.stringify(jwk)}`)
+        debugJWT(`PEM P-256: ${JSON.stringify(pems)}`)
       })
 
     it('Should be able to convert keys between PEM and JWK when using ecc384.',
@@ -493,6 +514,8 @@ describe('Specification tests for the helper methods.', () => {
         expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
         expect(pems.privateKey).to.equal(pems2.privateKey)
         expect(pems.publicKey).to.equal(pems2.publicKey)
+        debugJWT(`JWK P-384: ${JSON.stringify(jwk)}`)
+        debugJWT(`PEM P-384: ${JSON.stringify(pems)}`)
       })
 
     it('Should be able to convert keys between PEM and JWK when using ecc521.',
@@ -510,17 +533,21 @@ describe('Specification tests for the helper methods.', () => {
         expect(jwk.publicKey.y).to.equal(jwk2.publicKey.y)
         expect(pems.privateKey).to.equal(pems2.privateKey)
         expect(pems.publicKey).to.equal(pems2.publicKey)
+        debugJWT(`JWK P-521: ${JSON.stringify(jwk)}`)
+        debugJWT(`PEM P-521: ${JSON.stringify(pems)}`)
       })
   })
 
   describe('Test the ksuid library.', () => {
     const ksuid = require('../ksuid')
     const common = require('../common')
+    const debugKSUID = require('debug')('spec:ksuid')
 
     it('Should generate a 27-character KSUID.', async () => {
       const ksuidValue = await ksuid.create()
 
       expect(ksuidValue).to.have.lengthOf(27)
+      debugKSUID(`KSUID created: ${ksuidValue}`)
     })
 
     it('Should have the expected timestamp value.', async () => {
@@ -534,6 +561,7 @@ describe('Specification tests for the helper methods.', () => {
       expect(componentParts).to.have.property('time')
       expect(componentParts).to.have.property('payload')
     })
+
     it('Should have the same timestamp value as supplied.', async () => {
       const timestamp = 1549735200
       const ksuidValue = await ksuid.create(timestamp)
@@ -576,6 +604,7 @@ describe('Specification tests for the helper methods.', () => {
   describe('Test the RSA library.', () => {
     const rsa = require('../rsa')
     const payload = 'This is a super secret message.'
+    const debugRSA = require('debug')('spec:rsa')
 
     it('Should encrypt and decrypt using RSA 2048 key pair', async () => {
       const keyPair = await rsa.generateKeyPair(2048)
@@ -583,14 +612,19 @@ describe('Specification tests for the helper methods.', () => {
       let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
 
       expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 2048-bits key pair: ${ciphertext.toString(
+          'hex')}`)
     })
 
     it('Should sign and verify using a RSA 2048 key pair', async () => {
       const keyPair = await rsa.generateKeyPair(2048)
       let signature = await rsa.signPayload(payload, keyPair.privateKey)
-      let verified = await rsa.verifyPayloadSignature(payload, signature, keyPair.publicKey)
+      let verified = await rsa.verifyPayloadSignature(payload, signature,
+        keyPair.publicKey)
 
       expect(verified).to.equal(true)
+      debugRSA(`Signed with 2048-bits key pair: ${signature.toString('hex')}`)
     })
 
     it('Should encrypt and decrypt using RSA 4096 key pair', async () => {
@@ -598,15 +632,21 @@ describe('Specification tests for the helper methods.', () => {
       const keyPair = await rsa.generateKeyPair(4096)
       let ciphertext = await rsa.encrypt(keyPair.publicKey, payload)
       let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
+
       expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 4096-bits key pair: ${ciphertext.toString(
+          'hex')}`)
     })
 
     it('Should sign and verify using a RSA 4096 key pair', async () => {
       const keyPair = await rsa.generateKeyPair(4096)
       let signature = await rsa.signPayload(payload, keyPair.privateKey)
-      let verified = await rsa.verifyPayloadSignature(payload, signature, keyPair.publicKey)
+      let verified = await rsa.verifyPayloadSignature(payload, signature,
+        keyPair.publicKey)
 
       expect(verified).to.equal(true)
+      debugRSA(`Signed with 4096-bits key pair: ${signature.toString('hex')}`)
     })
   })
 })
