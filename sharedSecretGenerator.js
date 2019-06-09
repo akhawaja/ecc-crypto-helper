@@ -11,8 +11,8 @@ const funcs = {
    */
   generateSharedSecret: async (size = 32) => {
     return new Promise((resolve, reject) => {
-      let masterKey = undefined
-      let iv = undefined
+      let masterKey
+      let iv
 
       crypto.randomBytes(size, (err, buf) => {
         if (err) {
@@ -23,14 +23,14 @@ const funcs = {
 
         crypto.randomBytes(16, (err, buf) => {
           if (err) {
-            return reject(`Could not generate an IV: ${err}.`)
+            return reject(new Error(`Could not generate an IV: ${err}.`))
           }
 
           iv = buf
 
           crypto.scrypt(masterKey, iv, size, (err, secret) => {
             if (err) {
-              return reject(`Could not generate a secret: ${err}.`)
+              return reject(new Error(`Could not generate a secret: ${err}.`))
             }
 
             return resolve(secret)
@@ -75,7 +75,7 @@ const funcs = {
 
         return resolve(jwk)
       } catch (e) {
-        return reject(`Unable to generate shared secret: ${e}.`)
+        return reject(new Error(`Unable to generate shared secret: ${e}.`))
       }
     })
   }
