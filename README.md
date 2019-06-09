@@ -119,6 +119,11 @@ webToken = await eccHelper.jwt.es512.create(keyPair.privateKey, claims);
 // Create and parse KSUID
 var ksuid = await eccHelper.ksuid.create();
 var parsed = await eccHelper.ksuid.parse(ksuid);
+
+// Generate a shared secret
+var sharedSecret = await eccHelper.sharedSecretGenerator.generateSharedSecret(32) // 256-bit key
+var sharedSecretToJSONWebKey = await eccHelper.sharedSecretGenerator.convertSharedSecretToJwk(sharedSecret)
+var sharedSecretAsJSONWebKey = await eccHelper.sharedSecretGenerator.generateSharedSecretAsJwk(32) // 256-bit key
 ```
 
 See the `test/spec.js` file for more examples.
