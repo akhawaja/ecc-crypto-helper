@@ -6,7 +6,7 @@ const base64 = require('./base64')
  * Generate a key identifier suitable for use as a `kid` in a JSON Web Key.
  *
  * @param {Object} jwk - The JSON Web Key for which a `kid` is going to be generated.
- * @returns {string} The key identifier.
+ * @returns {Promise<string>} The key identifier.
  */
 const generateKeyIdentifier = (jwk) => {
   return new Promise(async (resolve, reject) => {
