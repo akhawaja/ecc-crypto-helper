@@ -102,8 +102,9 @@ describe('Specification tests for the helper methods.', () => {
       })
   })
 
-  describe('Testing the bas64 library.', () => {
+  describe('Testing the base64 library.', () => {
     const base64 = require('../base64')
+    const debugBase64 = require('debug')('spec:base64')
 
     it('Should URL encode then decode a string correctly.', async () => {
       const text = 'hello world'
@@ -112,7 +113,20 @@ describe('Specification tests for the helper methods.', () => {
       const decoded = await base64.urlDecode(encoded)
 
       expect(specimen).to.equal(encoded)
-      expect(decoded).to.equal(text)
+      expect(decoded.toString()).to.equal(text)
+    })
+
+    it('Should URL encode then decode a buffer correctly.', async () => {
+      const text = Buffer.from('hello world')
+      const len = text.length
+      const encoded = await base64.urlEncode(text)
+      const decoded = await base64.urlDecode(encoded)
+
+      expect(text.compare(Buffer.from(decoded))).to.equal(0)
+      expect(text.length).to.equal(len)
+
+      debugBase64(encoded)
+      debugBase64(decoded)
     })
 
     it('Should not decode a non-string value.', () => {
@@ -538,7 +552,7 @@ describe('Specification tests for the helper methods.', () => {
       })
   })
 
-  describe('Test the ksuid library.', () => {
+  describe('Testing the ksuid library.', () => {
     const ksuid = require('../ksuid')
     const common = require('../common')
     const debugKSUID = require('debug')('spec:ksuid')
@@ -601,7 +615,7 @@ describe('Specification tests for the helper methods.', () => {
       })
   })
 
-  describe('Test the RSA library.', () => {
+  describe('Testing the RSA library.', () => {
     const rsa = require('../rsa')
     const payload = 'This is a super secret message.'
     const debugRSA = require('debug')('spec:rsa')
@@ -647,6 +661,31 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(verified).to.equal(true)
       debugRSA(`Signed with 4096-bits key pair: ${signature.toString('hex')}`)
+    })
+  })
+
+  describe('Testing the shared secret generator.', () => {
+    const ss = require('../sharedSecretGenerator')
+    const base64 = require('../base64')
+    const debugSharedSecret = require('debug')('spec:sharedSecretGenerator')
+
+    it('Should generate a JSON Web Key from a shared secret', async () => {
+      const sharedSecret = await ss.generateSharedSecret()
+      const jwk = await ss.convertSharedSecretToJwk(sharedSecret)
+      const decoded = await base64.urlDecode(jwk.k)
+
+      expect(sharedSecret.length).to.equal(32)
+      expect(Buffer.isBuffer(sharedSecret)).to.equal(true)
+      expect(sharedSecret.compare(decoded)).to.equal(0)
+
+      debugSharedSecret(jwk)
+    })
+
+    it('Should generate a new shared secret as JSON Web Key', async () => {
+      const jwk = await ss.generateSharedSecretAsJwk()
+      const decoded = await base64.urlDecode(jwk.k)
+
+      expect(Buffer.from(decoded).length).to.equal(32)
     })
   })
 })

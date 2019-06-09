@@ -2,7 +2,7 @@ module.exports = {
   /**
    * Base64 URL encode a given text.
    *
-   * @param {string} text - The text to encode.
+   * @param {Buffer|string} text - The text to encode.
    * @returns {Promise<string>} The encoded text.
    */
   urlEncode: (text) => {
@@ -20,21 +20,22 @@ module.exports = {
       return resolve(encoded)
     })
   },
+
   /**
    * Base64 URL decode a given text.
    *
    * @param {string} encodedText - The Base64 encoded text.
-   * @returns {Promise<string>} The decoded text.
+   * @returns {Promise<Buffer>} The decoded text.
    */
   urlDecode: (encodedText) => {
     return new Promise((resolve, reject) => {
-      var encoded
+      let encoded
+
       if (typeof encodedText === 'string') {
+        encodedText += Array(5 - encodedText.length % 4).join('=')
         encoded = encodedText.replace('-', '+').replace('_', '/')
-        while (encoded.length % 4) {
-          encoded += '='
-        }
-        return resolve(Buffer.from(encoded, 'base64').toString('utf-8'))
+
+        return resolve(Buffer.from(encoded, 'base64'))
       } else {
         return reject(new TypeError(
           `Cannot decode non-string value. Found '${typeof encodedText}'.`))

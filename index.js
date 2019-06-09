@@ -24,5 +24,6 @@ lib.aesGcm256 = require('./aesgcm256')
 lib.password = require('./password')
 lib.jwt = require('./jwt')
 lib.rsa = require('./rsa')
+lib.sharedSecretGenerator = require('./sharedSecretGenerator')
 
 module.exports = lib
