@@ -44,6 +44,7 @@ the `Features` section for a quick description of what is available.
             hashing.
 - rsa: Generate key pairs, perform public key encryption and private key 
        decryption, sign and verify using private and public keys respectively.
+       Convert RSA keys between PEM and JWK.
 
 ## Example Usage
 
@@ -109,6 +110,13 @@ var webToken = await eccHelper.jwt.hs512.create(sharedSecret, claims);
 
 // Decode the JSON Web Token
 var decodedToken = await eccHelper.jwt.decode(webToken);
+
+// Generate a RSA key pair
+var rsaKeyPair = await eccHelper.rsa.generateKeyPair(2048) // 1024, 2048, or 4096
+var jwkPrivateKey = await eccHelper.rsa.convertPemToJwk(rsaKeyPair.privateKey)
+var jwkPublicKey = await eccHelper.rsa.convertPemToJwk(rsaKeyPair.publicKey)
+var rsaPrivateKey = await eccHelper.rsa.convertJwkToPem(jwkPrivateKey)
+var rsaPublicKey = await eccHelper.rsa.convertJwkToPem(jwkPublicKey)
 
 // Generate an ECDH key pair
 var keyPair = await eccHelper.ecc521.generatePemKeyPair();
