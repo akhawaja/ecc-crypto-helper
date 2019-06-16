@@ -30,8 +30,7 @@ module.exports = {
    * @param {Array} publicKeyOps - The operations intended for the public key.
    * @returns {Promise<Object>} The converted certificate.
    */
-  convertPemToJwk: (curveName, privateOrPublicPem, privateKeyOps = [],
-    publicKeyOps = []) => {
+  convertPemToJwk: (curveName, privateOrPublicPem, privateKeyOps = [], publicKeyOps = []) => {
     return new Promise(async (resolve, reject) => {
       if (privateKeyOps.length === 0) {
         privateKeyOps = ['deriveKey', 'sign']
@@ -190,8 +189,7 @@ module.exports = {
    * @param {string} hashType - The type of SHA2 digest to use. Defaults to SHA-256.
    * @returns {Promise<boolean>}
    */
-  verifyPayloadSignature: (payload, signature, publicKeyPem,
-    hashType = 'sha256') => {
+  verifyPayloadSignature: (payload, signature, publicKeyPem, hashType = 'sha256') => {
     return new Promise((resolve, reject) => {
       if (typeof payload !== 'string') {
         return reject(new TypeError('Payload must be a string.'))
