@@ -52,7 +52,8 @@
     "eckey-utils": "^0.7.10",
     "futoin-hkdf": "^1.0.2",
     "jws": "^3.2.2",
-    "ksuid": "^1.2.0"
+    "ksuid": "^1.2.0",
+    "pem-jwk": "^2.0.0"
   },
   "standard": {
     "ignore": [
