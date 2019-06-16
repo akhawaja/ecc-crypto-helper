@@ -616,8 +616,9 @@ describe('Specification tests for the helper methods.', () => {
   })
 
   describe('Testing the RSA library.', () => {
+    const crypto = require('crypto')
     const rsa = require('../rsa')
-    const payload = 'This is a super secret message.'
+    const payload = 'This is a super secret message to the world.'
     const debugRSA = require('debug')('spec:rsa')
 
     it('Should encrypt and decrypt using RSA 2048 key pair', async () => {
@@ -631,26 +632,77 @@ describe('Specification tests for the helper methods.', () => {
           'hex')}`)
     })
 
+    it('Should encrypt and decrypt using RSA 2048 key pair with OAEP padding', async () => {
+      const keyPair = await rsa.generateKeyPair(2048)
+      const options = {}
+      options.padding = crypto.constants.RSA_PKCS1_OAEP_PADDING
+
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload, options)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext, options)
+
+      expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 2048-bits key pair: ${ciphertext.toString(
+          'hex')}`)
+    })
+
+    it('Should encrypt and decrypt using RSA 2048 key pair with PKCS1 padding', async () => {
+      const keyPair = await rsa.generateKeyPair(2048)
+      const options = {}
+      options.padding = crypto.constants.RSA_PKCS1_PADDING
+
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload, options)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext, options)
+
+      expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 2048-bits key pair: ${ciphertext.toString('hex')}`)
+    })
+
     it('Should sign and verify using a RSA 2048 key pair', async () => {
       const keyPair = await rsa.generateKeyPair(2048)
-      let signature = await rsa.signPayload(payload, keyPair.privateKey)
-      let verified = await rsa.verifyPayloadSignature(payload, signature,
-        keyPair.publicKey)
+      const signature = await rsa.signPayload(payload, keyPair.privateKey)
+      const verified = await rsa.verifyPayloadSignature(payload, signature, keyPair.publicKey)
 
       expect(verified).to.equal(true)
       debugRSA(`Signed with 2048-bits key pair: ${signature.toString('hex')}`)
     })
 
     it('Should encrypt and decrypt using RSA 4096 key pair', async () => {
-      this.timeout = 10000
       const keyPair = await rsa.generateKeyPair(4096)
       let ciphertext = await rsa.encrypt(keyPair.publicKey, payload)
       let plain = await rsa.decrypt(keyPair.privateKey, ciphertext)
 
       expect(payload).to.equal(plain.toString())
       debugRSA(
-        `Ciphertext crypted with 4096-bits key pair: ${ciphertext.toString(
+        `Ciphertext crypted with 4096-bits key pair: ${ciphertext.toString('hex')}`)
+    })
+
+    it('Should encrypt and decrypt using RSA 4096 key pair with OAEP padding', async () => {
+      const keyPair = await rsa.generateKeyPair(4096)
+      const options = {}
+      options.padding = crypto.constants.RSA_PKCS1_OAEP_PADDING
+
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload, options)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext, options)
+
+      expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 2048-bits key pair: ${ciphertext.toString(
           'hex')}`)
+    })
+
+    it('Should encrypt and decrypt using RSA 4096 key pair with PKCS1 padding', async () => {
+      const keyPair = await rsa.generateKeyPair(4096)
+      const options = {}
+      options.padding = crypto.constants.RSA_PKCS1_PADDING
+
+      let ciphertext = await rsa.encrypt(keyPair.publicKey, payload, options)
+      let plain = await rsa.decrypt(keyPair.privateKey, ciphertext, options)
+
+      expect(payload).to.equal(plain.toString())
+      debugRSA(
+        `Ciphertext crypted with 2048-bits key pair: ${ciphertext.toString('hex')}`)
     })
 
     it('Should sign and verify using a RSA 4096 key pair', async () => {
@@ -661,6 +713,32 @@ describe('Specification tests for the helper methods.', () => {
 
       expect(verified).to.equal(true)
       debugRSA(`Signed with 4096-bits key pair: ${signature.toString('hex')}`)
+    })
+
+    it('Should convert a RSA 2048 key pair from PEM to JWK and back', async () => {
+      const keyPair = await rsa.generateKeyPair(2048)
+      const jwkPrivate = await rsa.convertPemToJwk(keyPair.privateKey)
+      const jwkPublic = await rsa.convertPemToJwk(keyPair.publicKey)
+      const rsaPrivate = await rsa.convertJwkToPem(jwkPrivate)
+      const rsaPublic = await rsa.convertJwkToPem(jwkPublic)
+
+      expect(rsaPrivate).to.equal(keyPair.privateKey)
+      expect(rsaPublic).to.equal(keyPair.publicKey)
+      debugRSA(`JWK Private: ${JSON.stringify(jwkPrivate)}`)
+      debugRSA(`JWK Public: ${JSON.stringify(jwkPublic)}`)
+    })
+
+    it('Should convert a RSA 4096 key pair from PEM to JWK and back', async () => {
+      const keyPair = await rsa.generateKeyPair(4096)
+      const jwkPrivate = await rsa.convertPemToJwk(keyPair.privateKey)
+      const jwkPublic = await rsa.convertPemToJwk(keyPair.publicKey)
+      const rsaPrivate = await rsa.convertJwkToPem(jwkPrivate)
+      const rsaPublic = await rsa.convertJwkToPem(jwkPublic)
+
+      expect(rsaPrivate).to.equal(keyPair.privateKey)
+      expect(rsaPublic).to.equal(keyPair.publicKey)
+      debugRSA(`JWK Private: ${JSON.stringify(jwkPrivate)}`)
+      debugRSA(`JWK Public: ${JSON.stringify(jwkPublic)}`)
     })
   })
 
